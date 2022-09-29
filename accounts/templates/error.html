@@ -1,0 +1,9 @@
+{% extends 'home/base.html' %}
+{% block content %}
+{% load static %}
+{% load crispy_forms_tags %}
+<div class="container-fluid">
+  <p>{{message}}</p>
+</div>
+{% include 'home/footer.html' %}
+{% endblock %}

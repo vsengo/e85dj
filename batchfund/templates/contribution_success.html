@@ -1,0 +1,25 @@
+{% extends 'home/base.html' %}
+{% block content %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+<div class="container-fluid">
+    <div class="row no-gutter">
+        <div>
+            <h3>
+                Thank you {{user.first_name}} {{user.last_name}}.
+            </h3>
+            <p>
+                Your commitment to cointribute to {{project.name}} <br>  
+                for the amount {{contribution.currency}}.{{contribution.amount}} per {{contribution.frequency}}
+                is added to the database.            
+            </p>
+            <p>
+               <strong>
+                    You contribution is very much appreciated.
+               </strong>
+            </p>
+    </div>
+</div>
+{% include 'home/footer.html' %}
+{% endblock %}

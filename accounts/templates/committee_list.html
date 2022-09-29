@@ -1,0 +1,47 @@
+{% extends 'home/base.html' %}
+{% block content %}
+
+<div class="container-fluid">
+    <div class="row text-center justify-content-center">
+            <div class="card mt-2 mb-2">
+            <div class="card-header">
+                <div class="row">
+                   <p >Review Committee Members for {{project.name}} and Update, Delete OR 
+                   {% if user.is_staff %}
+                   <a href="{% url 'accounts:committeeAdd' project.id %}" class="btn btn-primary btn-sm">Add Member</a>
+                   {% endif %}
+                   </p>
+                </div>
+            </div>
+
+            <div class="card-body">
+                {% for committee in committee_list %}
+                <div class="row">
+                    <div class="col-md-9 col-lg-9" align="left">
+                        <div class="alert alert-success text-left justify-content-left">
+                            Name :{{project.name}}  Status:{{project.status}} Start Date:{{project.startDate}}
+                        </div>
+                        <div class="alert alert-info text-left justify-content-left">
+                        <strong>{{committee.member.user.first_name}} {{committee.member.user.last_name}} </strong> 
+                        </div>
+                        <div class="alert alert-info text-left justify-content-left">
+                            <strong>Rs. {{committee.role.title}} </strong> 
+                            </div>
+                         </div>
+                    <div class="col-md-3 col-lg-3" align="right">
+                        {% if user.is_staff %}
+
+                        <a href="{% url 'accounts:committeeUpd' committee.id %}" class="btn btn-primary btn-sm">Edit Member</a>
+                        <a href="{% url 'accounts:committeeDel' committee.id %}" class="btn btn-primary btn-sm">Delete Member</a>
+                        {% endif %}                        
+                    </div>
+                </div>
+                <hr>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+ </div>
+
+{% include 'home/footer.html' %}
+{% endblock content %}

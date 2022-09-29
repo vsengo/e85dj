@@ -1,0 +1,23 @@
+{% extends 'home/base.html' %}
+
+{% block content %}
+  <div align="center">
+  {% if validlink %}
+   <h3 align="center">Reset your new password</h3>
+    <div class="row text-left justify-content-center ">
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Change password</button>
+    </form>
+    </div>
+    <hr>
+  {% else %}
+    <p>
+      The password reset link was invalid, possibly because it has already been used.
+      Please request a new password reset.
+    </p>
+  {% endif %}
+  </div>
+{% include 'home/footer.html' %}
+{% endblock %}

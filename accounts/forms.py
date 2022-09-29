@@ -1,0 +1,74 @@
+from django.contrib.auth.forms import UserCreationForm
+from django import forms
+from django.contrib.auth.models import User
+from util.widgets import BootstrapDateTimePickerInput
+from .models import Commitee, Member, Project, Role
+
+class RegisterForm(UserCreationForm):
+    email = forms.EmailField(label = "Email")
+    first_name = forms.CharField(label = "First Name")
+    last_name = forms.CharField(label = "Last Name")
+
+    class Meta:
+        model = User
+        fields = ("first_name", "last_name", "email", "username")
+
+    def save(self, commit=True):
+        print("Saving signup")
+        user = super(UserCreationForm, self).save(commit=False)
+        user.set_password(self.cleaned_data["password1"])
+        if commit:
+            user.save()
+        return user
+
+class MemberForm(forms.ModelForm):
+    mobile =forms.CharField(label="Mobile Number (country) (number)")
+    city = forms.CharField(label = "City")
+    country = forms.CharField(label = "Country")
+    dob = forms.DateField(label = "Date of Birth",)
+    widgets = {
+            'dob': BootstrapDateTimePickerInput(format='%Y-%m-%d'), # specify date-frmat
+        }
+    class Meta:
+        model = Member
+        fields = ("mobile","city", "country", "dob")
+    
+    def save(self,commit=True):
+        member = super(MemberForm,self).save(commit=False)
+        if commit:
+            member.save()
+        return member
+
+class ProjectForm(forms.ModelForm):
+    widgets = {
+            'startDate': BootstrapDateTimePickerInput(format='%Y-%m-%d'), # specify date-frmat
+            'ebdDate'  : BootstrapDateTimePickerInput(format='%Y-%m-%d'), # specify date-frmat
+        }
+    class Meta:
+        model = Project
+        fields = ('name','purpose','prjType','status','startDate','endDate','targetFund')
+    
+    def save(self,commit=True):
+        project = super(ProjectForm,self).save(commit=False)
+        if commit:
+            project.save()
+        return project
+
+class CommiteeForm(forms.ModelForm):
+    widgets = {
+            'startDate': BootstrapDateTimePickerInput(format='%Y-%m-%d'), # specify date-frmat
+            'endDate'  : BootstrapDateTimePickerInput(format='%Y-%m-%d'), # specify date-frmat
+        }
+
+    role=forms.ModelChoiceField(queryset=Role.objects.filter())
+    member=forms.ModelChoiceField(queryset=Member.objects.filter())
+
+    class Meta:
+        model = Commitee
+        fields = ('member','role','status','startDate','endDate')
+    
+    def save(self,commit=True):
+        data = super(CommiteeForm,self).save(commit=False)
+        if commit:
+            data.save()
+        return data
