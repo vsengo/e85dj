@@ -1,11 +1,9 @@
-from ast import Constant
-from linecache import _ModuleGlobals
+from tkinter import CASCADE
 from django.db import models
 from django.contrib.auth.models import User, Group
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from datetime import datetime
-# Create your models here.
 
 class UserRole:
     EDIT='EDIT'
@@ -32,8 +30,10 @@ def save_user_member(sender, instance, **kwargs):
     instance.member.save()
 
 class ProjectType(models.Model):
-    category:models.CharField(max_length=16)
     description=models.CharField(max_length=32,null=True)
+
+    def __str__(self):
+        return "%s " % (self.description) 
 
 class Project(models.Model):
     NOT_STARTED = 'NS'
@@ -47,14 +47,6 @@ class Project(models.Model):
             (CANCELLED,'Cancelled'),
     ]
     
-    PROJ_TYPE_PADDY='INVESTMENT'
-    PROJ_TYPE_CHARITY='CHARITY'
-
-    PROJ_TYPE=[
-        (PROJ_TYPE_CHARITY,'Charitable'),
-        (PROJ_TYPE_PADDY,'Investment'),
-    ]
-
     name = models.CharField(max_length=64)
     purpose = models.TextField(max_length=2000, blank=True)
     status = models.CharField(max_length=3,choices=PROJ_STATUS,default=NOT_STARTED)
@@ -65,7 +57,7 @@ class Project(models.Model):
     targetFund = models.IntegerField(null=True)
     updatedBy = models.ForeignKey(User,on_delete=models.CASCADE)
     updatedOn = models.DateTimeField(default=datetime.now())
-    prjType = models.CharField(max_length=12,choices=PROJ_TYPE,default=PROJ_TYPE_CHARITY)
+    prjType = models.ForeignKey(ProjectType, on_delete=models.CASCADE)
 
     def isCommiteeMember(self, user):
         member= Member.objects.get(user_id=user.id)
@@ -117,6 +109,7 @@ TXTYPE =[
     ('DEPOSIT','Deposit'),
     ('WITHDRAWAL','Withdraw'),
     ('INCOME','Interest'),
+    ('FEES','fees'),
 ]       
 
 class Transaction(models.Model):

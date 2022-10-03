@@ -4,7 +4,7 @@
 <div class="container-fluid">
     <div class="row text-center justify-content-center">
         
-        {% if useRole == 'EDIT' %}
+        {% if user.is_staff %}
         <p >Review Minutes and Update or Delete or
          <a href="{% url 'accounts:minuteAdd' project.id %}" class="btn btn-primary btn-sm">Add committee</a>
          </p>

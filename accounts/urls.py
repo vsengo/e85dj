@@ -3,6 +3,7 @@ from django.contrib.auth import views as auth_views
 from django.urls import path,re_path,include
 from .views import  SignUpView, logOff, logIn, memberView, projectAddView,projectListView,projectDelView,ProjectUpd
 from .views import committeeAddView, CommitteeUpd, committeeDelView,committeeListView, minuteAddView, minuteDelView, minuteListView, minuteUpdView
+from .views import transactionAddView, transactionDelView, transactionListView, transactionSummary, TransactionUpd, financialReport
 
 urlpatterns = [
     re_path(r'signup', SignUpView.as_view(), name='signup'),
@@ -15,6 +16,14 @@ urlpatterns = [
     re_path(r'projectDel(?P<pk>\d+)', projectDelView, name='projectDel'),
     re_path(r'projectUpd(?P<pk>\d+)', ProjectUpd.as_view(), name='projectUpd'),
 
+    re_path(r'transactionList(?P<pk>\d+)', transactionListView, name='transactionList'),
+    re_path(r'transactionAdd(?P<pk>\d+)', transactionAddView, name='transactionAdd'),
+    re_path(r'transactionUpd(?P<pk>\d+)', TransactionUpd.as_view(), name='transactionUpd'),
+    re_path(r'transactionDel(?P<pk>\d+)', transactionDelView, name='transactionDel'),
+
+    re_path(r'financialReport(?P<pk>\d+)', financialReport, name='financialReport'),
+    re_path(r'transactionSummary(?P<pk>\d+)',transactionSummary, name='transactionSummary'),
+    
     re_path(r'committeeList(?P<pk>\d+)', committeeListView, name='committeeList'),
     re_path(r'committeeAdd(?P<pk>\d+)', committeeAddView, name='committeeAdd'),
     re_path(r'committeeDel(?P<pk>\d+)', committeeDelView, name='committeeDel'),
@@ -24,6 +33,7 @@ urlpatterns = [
     re_path(r'minuteAdd(?P<pk>\d+)', minuteAddView, name='minuteAdd'),
     re_path(r'minuteDel(?P<pk>\d+)', minuteDelView, name='minuteDel'),
     re_path(r'minuteUpd(?P<pk>\d+)', minuteUpdView, name='minuteUpd'),
+
 
     re_path(r'password_reset/',
          auth_views.PasswordResetView.as_view(

@@ -1,0 +1,45 @@
+{% extends 'home/base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="container-fluid">
+
+    {% for sts in status_list %}
+    <div class="card">
+        <div class="card-header text-center justify-content-center">
+          <h5 class="card-title">{{sts.title}}</h5>
+          Updated by :{{sts.updatedBy.first_name}} on {{sts.updatedOn}}
+        </div>
+        {% if sts.photo %}
+          <img class="card-img-top" src="{{ sts.photo.url }}" alt="Card image" width="400"">
+        {% endif %}
+        {% if sts.video %}
+          <video width='400' controls>
+            <source src="{{ sts.video.url }}" type='video/mp4'>
+            Your browser does not support the video tag.
+          </video>
+        {% endif %}
+        <div class="card-body">
+          <p class="card-text">{{sts.content}}
+          </p>
+        </div>
+      </div>
+      <div class="card-footer">
+        <div class="row  mb-3">
+          <div class="col-md-6 col-lg-6 text-center justify-content-left">
+          <form action="{% url 'paddyprj:prjStatusLiked' sts.id %}" method="POST">
+           {% csrf_token %}
+          <button type="submit" name="blogpost_id" value="Liked"
+                  class="btn btn-info"><strong
+                  class="text-secondary">
+                  likes ({{ sts.likes }})</strong>
+          </button>
+          </form>
+          </div>
+          <div class="col-md-6 col-lg-6 text-center justify-content-right" >
+          <a href="{% url 'paddyprj:prjStatusComment' sts.id %}" class="btn btn-primary btn-sm">Comments ({{sts.comments}})</a> </div>
+      </div>
+      {% endfor %}
+</div>
+{% include 'home/footer.html' %}
+{% endblock %}

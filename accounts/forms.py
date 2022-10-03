@@ -2,7 +2,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django import forms
 from django.contrib.auth.models import User
 from util.widgets import BootstrapDateTimePickerInput
-from .models import Commitee, Member, Project, Role, Minute
+from .models import Commitee, Member, Project, Role, Minute, ExpenseType, Transaction
 
 class RegisterForm(UserCreationForm):
     email = forms.EmailField(label = "Email")
@@ -85,4 +85,17 @@ class MinuteForm(forms.ModelForm):
         data = super(MinuteForm,self).save(commit=False)
         if commit:
             data.save()
+        return data
+
+class TransactionForm(forms.ModelForm):
+    exType=forms.ModelChoiceField(queryset=ExpenseType.objects.filter())
+    class Meta:
+        model = Transaction
+        fields = ['txOwner','txType','exType','remarks','amount','receipt','date']
+
+    def save(self, commit=True):
+        data = super(TransactionForm, self).save(commit=False)
+        if commit:
+            data.save()
+
         return data

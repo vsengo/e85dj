@@ -8,9 +8,13 @@ from django.urls import reverse_lazy
 from django.views import generic
 from django.views.generic import UpdateView
 from django.contrib  import messages
+from django.db import IntegrityError
+from django.db.models import Sum
+from django.conf import settings
+from django.http import JsonResponse
 
-from accounts.forms import RegisterForm, MemberForm, ProjectForm, CommiteeForm, MinuteForm
-from accounts.models import Commitee, Member, Project, Minute, UserRole
+from accounts.forms import RegisterForm, MemberForm, ProjectForm, CommiteeForm, MinuteForm, TransactionForm
+from accounts.models import Commitee, Member, Project, Minute, UserRole, Transaction, ExpenseType
 
 class SignUpView(generic.CreateView):
     form_class = RegisterForm
@@ -266,3 +270,101 @@ def minuteDelView(request,pk):
     minuteList = Minute.objects.all().filter(project_id=project.id)
     
     return render(request = request,template_name = "minute_list.html",context={'minute_list':minuteList,'project':project, 'userRole':userRole})
+
+@login_required
+def transactionListView(request, pk):
+    prj = Project.objects.all().filter(id=pk).first()
+    if request.method == 'GET':
+        transactions = Transaction.objects.all().filter(project_id=prj.id)
+        return render(request = request,template_name = "transaction_list.html",context={'project':prj, 'transaction_list':transactions})
+
+    if request.method == 'POST':
+        user = User.objects.get(id=request.user.id)
+        form = TransactionForm(request.POST)
+
+        if form.is_valid():
+            try:
+                obj=form.save(commit=False)
+                obj.user = user
+                obj.project = prj
+                obj.save()
+                return render(request,template_name="transaction_success.html",context={'transaction':obj,'project':prj})
+            except IntegrityError as e:
+                error={'message':'Could not save to database'}
+                return render(request,template_name='error.html',context=error)
+        else:
+            error={'message':'Error'}
+            return render(request,template_name='error.html',context=error)
+
+@login_required
+def transactionAddView(request,pk):
+    user = User.objects.get(id=request.user.id)
+    prj = Project.objects.get(id=pk)
+    if request.method == 'GET':
+        if prj.isCommiteeMember(user):
+            form = TransactionForm()
+            return render(request = request,template_name = "transaction.html",context={"form":form,'project':prj})
+        else:
+            error={'message':user.first_name+" is not a committee member of "+prj.name}
+            return render(request,template_name='accessControl.html',context=error)
+        
+    if request.method == 'POST':
+        form = TransactionForm(request.POST,request.FILES)
+
+        if form.is_valid():
+            try:
+                obj=form.save(commit=False)
+                obj.updatedBy = user
+                obj.project = prj
+                obj.save()
+                return render(request,template_name="transaction_success.html",context={'transaction':obj,'project':prj})
+            except IntegrityError as e:
+                error={'message':'Could not save to database'}
+                return render(request,template_name='error.html',context=error)
+        else:
+            error={'message':'Error'}
+            return render(request,template_name='error.html',context=error)
+
+class TransactionUpd(UpdateView):
+    model = Transaction
+    form_class = TransactionForm
+    template_name = 'transaction.html'
+
+    def get_success_url(self):
+        return  reverse_lazy('account:transactionList')
+
+    def get_queryset(self):
+        return Transaction.objects.filter(id=self.kwargs['pk'])
+
+@login_required
+def transactionDelView(request,pk):
+    tx = Transaction.objects.filter(id=pk).first()
+    pid=tx.project_id
+    tx.delete()
+    transactions = Transaction.objects.all().filter(project_id = pid)
+    prj = Project.objects.get(id=pid)
+    project = Project.objects.get(id=prj.id)
+    return  render(request,template_name="transaction_list.html",context={'transaction_list':transactions,'project':project})
+
+
+def transactionSummary(request,pk):
+    labels = []
+    data = []
+
+    queryset = Transaction.objects.all().filter(project_id=pk).values('exType').annotate(total=Sum('amount')).order_by('-exType')
+
+    for entry in queryset:
+        exp = ExpenseType.objects.get(id=entry['exType'])
+        labels.append(exp.expense)
+        data.append(entry['total'])
+    
+    return JsonResponse(data={
+        'labels': labels,
+        'data': data,
+    })
+
+@login_required
+def financialReport(request, pk):
+    prj = Project.objects.get(id=pk)
+    templateName='financial_'+str(prj.id)+".html"
+    return render(request,template_name=templateName,context={'project':prj})

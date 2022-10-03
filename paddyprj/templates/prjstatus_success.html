@@ -1,0 +1,35 @@
+{% extends 'home/base.html' %}
+{% block content %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+<div class="container-fluid">
+    <div class="row no-gutter">
+        <h4>
+                {{project.name}} {{project.startDate}}
+        </h4>
+        <div class="card">
+            <div class="card-header text-center justify-content-center">
+                <h5 class="card-title">{{prjStatus.title}}</h5><br>
+                Updated by :{{prjStatus.updatedBy.first_name}} on {{prjStatus.updatedOn}}</div>
+                {% if prjStatus.photo %}
+                <img class="card-img-top" src="{{ prjStatus.photo.url }}" alt="Card image" width="600p" height="330">
+                {% endif %}
+                {% if prjStatus.video %}
+                <video width='400' controls>
+                  <source src="{{ prjStatus.video.url }}" type='video/mp4'>
+                  Your browser does not support the video tag.
+                </video>
+                {% endif %}
+            <div class="card-body">
+              <p class="card-text">{{prjStatus.content}}</p>
+            </div>
+            <div class="card-footer justify-content-center">
+                <button type="button" class="btn btn-primary"><a href="{% url 'paddyprj:prjStatusUpd' prjStatus.id %}">Edit</a></button>
+                <button type="button" class="btn btn-primary"><a href="{% url 'paddyprj:prjStatusDel' prjStatus.id %}">Delete</a></button>
+            </div>
+        </div>
+    </div>
+</div>
+{% include 'home/footer.html' %}
+{% endblock %}

@@ -4,7 +4,7 @@ from django import forms
 from django.contrib.auth.models import User
 from accounts.forms import ProjectForm
 from util.widgets import BootstrapDateTimePickerInput
-from .models import ExpenseType, Investor, PaddyProject, Transaction, Investor
+from .models import Investor, PaddyProject, Investor
 from .models import ProjectStatus, Comment
 
 class PaddyPrjForm(forms.ModelForm):
@@ -30,19 +30,6 @@ class InvestorForm(forms.ModelForm):
             data.save()
 
         return DataHandler
-
-class TransactionForm(forms.ModelForm):
-    exType=forms.ModelChoiceField(queryset=ExpenseType.objects.filter())
-    class Meta:
-        model = Transaction
-        fields = ['txOwner','txType','exType','remarks','amount','receipt','date']
-
-    def save(self, commit=True):
-        data = super(TransactionForm, self).save(commit=False)
-        if commit:
-            data.save()
-
-        return data
 
 class ProjectStatusForm(forms.ModelForm):
     class Meta:

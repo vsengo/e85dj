@@ -6,14 +6,6 @@ from accounts.models import Project
 from datetime import datetime
 
 # Tables to manage investment and expenses
-
-
-class ExpenseType(models.Model):
-    expense = models.CharField(max_length=16)
-    
-    def __str__(self):
-        return "%s " % (self.expense)
-
 class PaddyProject(models.Model):
     project = models.OneToOneField(Project,on_delete=models.CASCADE)
     costPerShare = models.DecimalField(max_digits=9,decimal_places=2,default=0)
@@ -43,18 +35,6 @@ class Investor(models.Model):
     amount = models.IntegerField(max_length=9)
     startDate = models.DateField(default=datetime.now())
     endDate = models.DateField(null=True)
-    updatedOn = models.DateTimeField(default=datetime.now())
-
-class Transaction(models.Model):
-    project = models.ForeignKey(PaddyProject, on_delete=models.CASCADE)
-    txOwner = models.ForeignKey(User, related_name='txOwner', on_delete=models.CASCADE)
-    txType = models.CharField(max_length=10,choices=TXTYPE)
-    exType = models.ForeignKey(ExpenseType, on_delete=models.CASCADE)
-    remarks=models.CharField(max_length=100,blank=True,null=True)
-    amount = models.IntegerField(max_length=9)
-    date = models.DateField(default=datetime.now())
-    receipt = models.FileField(upload_to='paddyprj/%Y',null=True,blank=True)
-    updatedBy = models.ForeignKey(User,on_delete=models.CASCADE)
     updatedOn = models.DateTimeField(default=datetime.now())
 
 #Tables to provide status updates
