@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import path,re_path,include
 from .views import  SignUpView, logOff, logIn, memberView, projectAddView,projectListView,projectDelView,ProjectUpd
-from .views import committeeAddView, CommitteeUpd, committeeDelView,committeeListView
+from .views import committeeAddView, CommitteeUpd, committeeDelView,committeeListView, minuteAddView, minuteDelView, minuteListView, minuteUpdView
 
 urlpatterns = [
     re_path(r'signup', SignUpView.as_view(), name='signup'),
@@ -20,6 +20,11 @@ urlpatterns = [
     re_path(r'committeeDel(?P<pk>\d+)', committeeDelView, name='committeeDel'),
     re_path(r'committeeUpd(?P<pk>\d+)', CommitteeUpd.as_view(), name='committeeUpd'),
     
+    re_path(r'minuteList(?P<pk>\d+)', minuteListView, name='minuteList'),
+    re_path(r'minuteAdd(?P<pk>\d+)', minuteAddView, name='minuteAdd'),
+    re_path(r'minuteDel(?P<pk>\d+)', minuteDelView, name='minuteDel'),
+    re_path(r'minuteUpd(?P<pk>\d+)', minuteUpdView, name='minuteUpd'),
+
     re_path(r'password_reset/',
          auth_views.PasswordResetView.as_view(
              template_name='accounts/password_reset/pwdreset_form.html',

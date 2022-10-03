@@ -37,10 +37,11 @@
                     <li><a class="dropdown-item disabled" href=#>Updates</a></li>
                     {% if user.is_authenticated %}
                     <hr>
+                    <li><a class="dropdown-item disabled" href=# style="color:violet">Member Only</a></li>
                     <li><a class="dropdown-item" href={% url 'batchfund:contributionAdd' %}>Contribute</a></li>
-                    <li><a class="dropdown-item disabled" href=#>Meeting Minutes</a></li>
+                    <li><a class="dropdown-item" href={% url 'accounts:minuteList' 1 %}>Meeting Minutes</a></li>
                     <hr>
-                    <li><a class="dropdown-item disabled" href=#>Distribute</a></li>
+                    <li><a class="dropdown-item disabled" href=# style="color:violet">Committee Only</a></li>
                     <li><a class="dropdown-item disabled" href=#>Financials</a></li>
                     {% endif %}                      
                 </ul>
@@ -53,20 +54,19 @@
                     </a>                    
                   <ul class="dropdown-menu">
                       <li><a class="dropdown-item" href={% url 'paddyprj:information' %}>Information</a></li>
-                      <li><a class="dropdown-item disabled" href=#>Updates</a></li>
+                      <li><a class="dropdown-item" href={% url 'paddyprj:status' %}>Status Updates</a></li>
                       <li><a class="dropdown-item" href={% url 'paddyprj:investorAdd' %}>Invest</a></li>
                       {% if user.is_authenticated %}
                       <hr>
-                      <li><a class="dropdown-item disabled" href=#>Investor Only</a></li>
-                      <li><a class="dropdown-item disabled" href=#>Meeting Minutes</a></li>
+                      <li><a class="dropdown-item disabled" href=# style="color:violet">Investor Only</a></li>
+                      <li><a class="dropdown-item" href={% url 'accounts:minuteList' 5 %}>Meeting Minutes</a></li>
                       <li><a class="dropdown-item" href={% url 'paddyprj:financialReport' %}>Report</a></li>
                       {% endif %}    
                       {% if user.is_staff %}
                       <hr>
-                      <li><a class="dropdown-item disabled" href=#>Committee Only</a></li>
+                      <li><a class="dropdown-item disabled" href=# style="color:violet">Committee Only</a></li>
                       <li><a class="dropdown-item" href={% url 'paddyprj:projectList' %}>Update Project</a></li>
-                      <li><a class="dropdown-item" href=#>Update Status</a></li>
-                      <li><a class="dropdown-item" href=#>Update Minutes</a></li>
+                      <li><a class="dropdown-item" href={% url 'paddyprj:prjStatusList' %}>Update Status</a></li>
                       <li><a class="dropdown-item" href={% url 'paddyprj:transactionList' %}>Transactions</a></li>
                       </li>
                       {% endif %}

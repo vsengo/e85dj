@@ -15,6 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,re_path,include
+from django.conf import settings
+from django.conf.urls.static import static
+
 from accounts import urls
 from batchfund import urls
 
@@ -25,3 +28,6 @@ urlpatterns = [
     re_path(r'batchfund/', include(('batchfund.urls','batchfund'),namespace='batchfund')),
     re_path(r'paddyprj/', include(('paddyprj.urls','paddyprj'),namespace='paddyprj')),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

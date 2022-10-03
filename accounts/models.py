@@ -1,9 +1,17 @@
+from ast import Constant
+from linecache import _ModuleGlobals
 from django.db import models
 from django.contrib.auth.models import User, Group
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from datetime import datetime
 # Create your models here.
+
+class UserRole:
+    EDIT='EDIT'
+    VIEW='VIEW'
+    NONE='NONE'
+    
 
 class Member(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -22,6 +30,10 @@ def create_user_member(sender, instance, created, **kwargs):
 @receiver(post_save, sender=User)
 def save_user_member(sender, instance, **kwargs):
     instance.member.save()
+
+class ProjectType(models.Model):
+    category:models.CharField(max_length=16)
+    description=models.CharField(max_length=32,null=True)
 
 class Project(models.Model):
     NOT_STARTED = 'NS'
@@ -55,6 +67,13 @@ class Project(models.Model):
     updatedOn = models.DateTimeField(default=datetime.now())
     prjType = models.CharField(max_length=12,choices=PROJ_TYPE,default=PROJ_TYPE_CHARITY)
 
+    def isCommiteeMember(self, user):
+        member= Member.objects.get(user_id=user.id)
+        committee = Commitee.objects.all().filter(project_id=self.id).filter(member_id = member.id)
+        if committee.exists():
+            return True
+        return False
+
 class Role(models.Model):
     title = models.CharField(max_length=64, blank=False, help_text="name")
     
@@ -84,5 +103,30 @@ class Minute(models.Model):
     resolution = models.CharField(max_length=1000)
     todos      = models.CharField(max_length=1000)
     date = models.DateField(null=True, blank=True)
+    updatedBy = models.ForeignKey(User,on_delete=models.CASCADE)
+    updatedOn = models.DateTimeField(default=datetime.now())
+
+class ExpenseType(models.Model):
+    expense = models.CharField(max_length=16)
+    prjType = models.ForeignKey(ProjectType, on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return "%s " % (self.expense)
+
+TXTYPE =[
+    ('DEPOSIT','Deposit'),
+    ('WITHDRAWAL','Withdraw'),
+    ('INCOME','Interest'),
+]       
+
+class Transaction(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    txOwner = models.ForeignKey(User, related_name='txOwner', on_delete=models.CASCADE)
+    txType  = models.CharField(max_length=10,choices=TXTYPE)
+    exType  = models.ForeignKey(ExpenseType, on_delete=models.CASCADE)
+    remarks =models.CharField(max_length=100,blank=True,null=True)
+    amount  = models.IntegerField(max_length=9)
+    date    = models.DateField(default=datetime.now())
+    receipt = models.FileField(upload_to='transaction/%Y',null=True,blank=True)
     updatedBy = models.ForeignKey(User,on_delete=models.CASCADE)
     updatedOn = models.DateTimeField(default=datetime.now())

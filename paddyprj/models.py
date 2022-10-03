@@ -6,11 +6,7 @@ from accounts.models import Project
 from datetime import datetime
 
 # Tables to manage investment and expenses
-TXTYPE =[
-    ('DEPOSIT','Deposit'),
-    ('WITHDRAWAL','Withdraw'),
-    ('INCOME','Interest'),
-]
+
 
 class ExpenseType(models.Model):
     expense = models.CharField(max_length=16)
@@ -57,28 +53,33 @@ class Transaction(models.Model):
     remarks=models.CharField(max_length=100,blank=True,null=True)
     amount = models.IntegerField(max_length=9)
     date = models.DateField(default=datetime.now())
+    receipt = models.FileField(upload_to='paddyprj/%Y',null=True,blank=True)
     updatedBy = models.ForeignKey(User,on_delete=models.CASCADE)
     updatedOn = models.DateTimeField(default=datetime.now())
 
 #Tables to provide status updates
-class ProjectUpdate(models.Model):
+class ProjectStatus(models.Model):
     project = models.ForeignKey(PaddyProject, on_delete=models.CASCADE)
     title = models.CharField(max_length=128)
     content = models.CharField(max_length=2000)
+    photo = models.ImageField(upload_to='paddyprj/%Y',blank=True, null=True)
+    video = models.FileField(upload_to='paddyprj/%Y',blank=True, null=True)
+    link = models.URLField(blank=True, null=True, help_text="Optional: any link to share")
+    likes = models.PositiveSmallIntegerField(default=0)
+    dislikes = models.PositiveSmallIntegerField(default=0)
+    comments = models.PositiveSmallIntegerField(default=0)
     reviewedBy = models.ForeignKey(User, related_name='reviewer', on_delete=models.CASCADE, null=True)
-    updatedBy = models.ForeignKey(User, related_name='contributor', on_delete=models.CASCADE)
+    updatedBy = models.ForeignKey(User, related_name='updatedBy', on_delete=models.CASCADE)
     updatedOn = models.DateTimeField(default=datetime.now())
 
-class Photo(models.Model):
-    file = models.ImageField(upload_to='photos/%Y', blank=True,null=True)
-    figNo = models.IntegerField(default=0)
-    thumb = models.ImageField(upload_to='photos/%Y', blank=True,null=True)
-    project = models.ForeignKey(ProjectUpdate, related_name='album', on_delete=models.CASCADE)
-    updatedBy = models.ForeignKey(User, on_delete=models.CASCADE)
+class Comment(models.Model):
+    status = models.ForeignKey(ProjectStatus, on_delete=models.CASCADE)
+    body = models.TextField(max_length=256)
+    link = models.URLField(blank=True, null=True, help_text="Optional: any link to share")
+    updatedBy = models.ForeignKey(User, related_name='commentor', on_delete=models.CASCADE)
     updatedOn = models.DateTimeField(default=datetime.now())
+    class Meta:
+        ordering = ['-updatedOn']
 
-class Video(models.Model):
-    file = models.FileField(upload_to='videow/%Y',blank=True, null=True)
-    project = models.ForeignKey(ProjectUpdate, related_name='video', on_delete=models.CASCADE)
-    updatedBy = models.ForeignKey(User, on_delete=models.CASCADE)
-    updatedOn = models.DateTimeField(default=datetime.now())
+    def __str__(self):
+        return 'Comment {} by {} on {}'.format(self.body, self.updatedBy.first_name, self.updatedOn)

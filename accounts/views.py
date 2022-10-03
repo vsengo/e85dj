@@ -8,8 +8,9 @@ from django.urls import reverse_lazy
 from django.views import generic
 from django.views.generic import UpdateView
 from django.contrib  import messages
-from accounts.forms import RegisterForm, MemberForm, ProjectForm, CommiteeForm
-from accounts.models import Commitee, Member, Project
+
+from accounts.forms import RegisterForm, MemberForm, ProjectForm, CommiteeForm, MinuteForm
+from accounts.models import Commitee, Member, Project, Minute, UserRole
 
 class SignUpView(generic.CreateView):
     form_class = RegisterForm
@@ -108,8 +109,13 @@ def committeeAddView(request,pk):
 
     if request.method == 'GET':
         form = CommiteeForm()
-        return render(request = request,template_name = "committee.html",context={"form":form,'project':project})
-
+        if project.isCommiteeMember(user):
+            form = MinuteForm()
+            return render(request = request,template_name = "committee.html",context={"form":form,'project':project})
+        else:
+            error={'message':user.first_name+" is not a committee member of "+project.name}
+            return render(request,template_name='accessControl.html',context=error)
+ 
     if request.method == 'POST':
         user = User.objects.get(id=request.user.id)
 
@@ -123,6 +129,7 @@ def committeeAddView(request,pk):
             context ={
                 'committee_list':committees,
                 'project':project,
+                'userRole':'EDIT'
             }
             return render(request,template_name="committee_list.html",context=context)
         else:
@@ -134,7 +141,13 @@ def committeeListView(request,pk):
     if request.method == 'GET':
         committees = Commitee.objects.all().filter(project_id=pk)
         project = Project.objects.get(id=pk)
-        return render(request = request,template_name = "committee_list.html",context={'committee_list':committees, 'project':project})
+        user = User.objects.get(id=request.user.id)
+        userRole = UserRole.VIEW
+        userRole=UserRole.VIEW
+        if project.isCommiteeMember(user):
+            userROle=UserRole.EDIT
+
+        return render(request = request,template_name = "committee_list.html",context={'committee_list':committees, 'project':project, 'userRole':userRole})
 
 class CommitteeUpd(UpdateView):
     model = Commitee
@@ -147,32 +160,109 @@ class CommitteeUpd(UpdateView):
     def get_queryset(self):
         return Commitee.objects.filter(id=self.kwargs['pk'])
  
-def committeeUpdSaveView(request,cid,pid):
+@login_required
+def committeeDelView(request,pk):
+    committee = Commitee.objects.get(id=pk)
+    project = Project.objects.get(id=committee.project_id)
+    committee.delete()        
+    committeeList = Commitee.objects.all().filter(project_id=project.id)
+    
+    return render(request = request,template_name = "committee_list.html",context={'committee_list':committeeList,'project':project})
 
+#Minutes
+@login_required
+def minuteAddView(request,pk):
+    project = Project.objects.get(id=pk)
+    user = User.objects.get(id=request.user.id)  
+    
+    if request.method == 'GET':
+        if project.isCommiteeMember(user):
+            form = MinuteForm()
+            return render(request = request,template_name = "minute.html",context={"form":form,'project':project})
+        else:
+            error={'message':user.first_name+" is not a committee member of "+project.name}
+            return render(request,template_name='accessControl.html',context=error)
+    
     if request.method == 'POST':
-        user = User.objects.get(id=request.user.id)
-
-        form = CommiteeForm(request.POST)
+        form = MinuteForm(request.POST)
         if form.is_valid():
             obj=form.save(commit=False)
             obj.updatedBy = user
             obj.project = project
             obj.save()
-            committees = Commitee.objects.all().filter(updatedBy=request.user.id)
+            minutes = Minute.objects.all().filter(updatedBy=request.user.id)
             context ={
-                'committee_list':committees,
+                'minute_list':minutes,
                 'project':project,
             }
-            return render(request,template_name="committee_list.html",context=context)
+            return render(request,template_name="minute_list.html",context=context)
         else:
-            error={'message':'Error'}
+            error={'message':'Error in Data input to Minutes'}
             return render(request,template_name='error.html',context=error)
 
 @login_required
-def committeeDelView(request,pk):
-    committee = Commitee.objects.get(id=pk)
-    project = Project.objects.get(id=pid)
-    committee.delete()        
-    committeeList = Commitee.objects.all().filter(project_id=project.id)
+def minuteListView(request,pk):
+    if request.method == 'GET':
+        minutes = Minute.objects.all().filter(project_id=pk)
+        user = User.objects.get(id=request.user.id)
+        prj=Project.objects.get(id=pk)
+        userRole = UserRole.VIEW
+        if prj.isCommiteeMember(user):
+            userRole=UserRole.EDIT
+
+        return render(request = request,template_name = "minute_list.html",context={'minute_list':minutes, 'userRole':userRole, 'project':prj})
+
+class MinuteUpd(UpdateView):
+    model = Minute
+    form_class = MinuteForm
+    template_name = 'minute.html'
+
+    def get_success_url(self):
+        return  reverse_lazy('accounts:minuteList', kwargs=self.kwargs['pk'])
+
+    def get_queryset(self):
+        return Minute.objects.filter(id=self.kwargs['pk'])
+
+def minuteUpdView(request,pk):
+    user = User.objects.get(id=request.user.id)
+    minute = Minute.objects.get(id=pk)  
+    project = Project.objects.get(id=minute.project_id)
     
-    return render(request = request,template_name = "committee_list.html",context={'committee_list':committeeList,'project':project})
+    if request.method == 'GET':
+        form  = MinuteForm(instance = minute)
+        return render(request,template_name='minute.html',context={'form':form})
+
+    if request.method == 'POST':
+        form = MinuteForm(request.POST)
+        if form.is_valid():
+            obj=form.save(commit=False)
+            obj.updatedBy = user
+            obj.project = project
+            obj.id = minute.id
+            obj.save()
+
+        else:
+            error={'message':'Error in Data input to Minutes'}
+            return render(request,template_name='error.html',context=error)
+
+    minutes = Minute.objects.all().filter(updatedBy=request.user.id)
+    context ={
+        'minute_list':minutes,
+        'project':project,
+        'userRole':UserRole.EDIT
+    }
+    return render(request,template_name="minute_list.html",context=context)
+
+@login_required
+def minuteDelView(request,pk):
+    minute = Minute.objects.get(id=pk)
+    user = User.objects.get(id=request.user.id)
+    project=Project.objects.get(id=minute.project_id)
+    userRole = UserRole.VIEW   
+    if project.isCommiteeMember(user):
+        userRole=UserRole.EDIT
+
+    minute.delete()     
+    minuteList = Minute.objects.all().filter(project_id=project.id)
+    
+    return render(request = request,template_name = "minute_list.html",context={'minute_list':minuteList,'project':project, 'userRole':userRole})
