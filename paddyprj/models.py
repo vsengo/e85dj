@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from accounts.models import Project
-from datetime import datetime
+from django.utils  import timezone
 
 # Tables to manage investment and expenses
 class PaddyProject(models.Model):
@@ -32,10 +32,10 @@ def save_project_paddyproject(sender, instance, **kwargs):
 class Investor(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     project = models.ForeignKey(PaddyProject, on_delete=models.CASCADE)
-    amount = models.IntegerField(max_length=9)
-    startDate = models.DateField(default=datetime.now())
-    endDate = models.DateField(null=True)
-    updatedOn = models.DateTimeField(default=datetime.now())
+    amount = models.IntegerField()
+    startDate = models.DateField(default=timezone.now)
+    endDate = models.DateField(null=True, blank=True)
+    updatedOn = models.DateTimeField(default=timezone.now)
 
 #Tables to provide status updates
 class ProjectStatus(models.Model):
@@ -50,14 +50,14 @@ class ProjectStatus(models.Model):
     comments = models.PositiveSmallIntegerField(default=0)
     reviewedBy = models.ForeignKey(User, related_name='reviewer', on_delete=models.CASCADE, null=True)
     updatedBy = models.ForeignKey(User, related_name='updatedBy', on_delete=models.CASCADE)
-    updatedOn = models.DateTimeField(default=datetime.now())
+    updatedOn = models.DateTimeField(default=timezone.now)
 
 class Comment(models.Model):
     status = models.ForeignKey(ProjectStatus, on_delete=models.CASCADE)
     body = models.TextField(max_length=256)
     link = models.URLField(blank=True, null=True, help_text="Optional: any link to share")
     updatedBy = models.ForeignKey(User, related_name='commentor', on_delete=models.CASCADE)
-    updatedOn = models.DateTimeField(default=datetime.now())
+    updatedOn = models.DateTimeField(default=timezone.now)
     class Meta:
         ordering = ['-updatedOn']
 

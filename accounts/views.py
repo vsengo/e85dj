@@ -12,7 +12,10 @@ from django.db import IntegrityError
 from django.db.models import Sum
 from django.conf import settings
 from django.http import JsonResponse
-
+from os import path, rename
+from util import img
+from PIL import Image
+from datetime import datetime
 from accounts.forms import RegisterForm, MemberForm, ProjectForm, CommiteeForm, MinuteForm, TransactionForm
 from accounts.models import Commitee, Member, Project, Minute, UserRole, Transaction, ExpenseType
 
@@ -50,12 +53,38 @@ def logIn(request):
 @login_required
 def memberView(request):
     member = Member.objects.get(user_id=request.user.id)
-    form = MemberForm(request.POST or None,instance=member)
-    if form.is_valid():
-        form.save()
-        return redirect('/')
+    if request.method == 'GET':
+        form = MemberForm(instance=member)
+        return render(request = request,template_name = "member.html",context={"form":form, 'member':member})
+        
+    if request.method == 'POST':
+        form = MemberForm(request.POST,request.FILES)
+        if form.is_valid():
+            obj=form.save(commit=False)
+            user = User.objects.get(id=request.user.id)
+            obj.user = user
+            obj.id=member.id
+            obj.save()
+            
+            if obj.photo:
+                today = datetime.now()
+                twidth, theight = 150, 200
+                fname, ext = path.splitext(obj.photo.name)
+                albumPath = path.join(settings.MEDIA_ROOT, "profile/")
+                opath = path.join(settings.MEDIA_ROOT,fname + ext)
+                nfname = today.strftime("%m%dT%H%M%S") + ext
+                npath = path.join(albumPath,nfname)
+                photo = Image.open(opath)
+                width, height = photo.size
+                if (width > twidth):
+                    photo = img.apply_orientation(photo)
+                    photo.thumbnail((twidth, theight), Image.HAMMING)
+                photo.save(opath)
+                rename(opath,npath)
+                obj.photo.name = "profile/"+nfname
+                obj.save()
 
-    return render(request = request,template_name = "member.html",context={"form":form})
+        return redirect('/')
 
 @login_required
 def logOff(request):
@@ -274,28 +303,12 @@ def minuteDelView(request,pk):
 @login_required
 def transactionListView(request, pk):
     prj = Project.objects.all().filter(id=pk).first()
+    user = User.objects.get(id=request.user.id)
     if request.method == 'GET':
         transactions = Transaction.objects.all().filter(project_id=prj.id)
-        return render(request = request,template_name = "transaction_list.html",context={'project':prj, 'transaction_list':transactions})
-
-    if request.method == 'POST':
-        user = User.objects.get(id=request.user.id)
-        form = TransactionForm(request.POST)
-
-        if form.is_valid():
-            try:
-                obj=form.save(commit=False)
-                obj.user = user
-                obj.project = prj
-                obj.save()
-                return render(request,template_name="transaction_success.html",context={'transaction':obj,'project':prj})
-            except IntegrityError as e:
-                error={'message':'Could not save to database'}
-                return render(request,template_name='error.html',context=error)
-        else:
-            error={'message':'Error'}
-            return render(request,template_name='error.html',context=error)
-
+        userRole = prj.getUserRole(user)
+        context={'project':prj, 'transaction_list':transactions, 'userRole':userRole}
+        return render(request = request,template_name = "transaction_list.html",context=context)
 @login_required
 def transactionAddView(request,pk):
     user = User.objects.get(id=request.user.id)
@@ -325,16 +338,36 @@ def transactionAddView(request,pk):
             error={'message':'Error'}
             return render(request,template_name='error.html',context=error)
 
-class TransactionUpd(UpdateView):
-    model = Transaction
-    form_class = TransactionForm
-    template_name = 'transaction.html'
+@login_required
+def transactionUpdView(request,pk):
+    user = User.objects.get(id=request.user.id)
+    tx = Transaction.objects.get(id=pk)  
+    project = Project.objects.get(id=tx.project_id)
+    
+    if request.method == 'GET':
+        form  = TransactionForm(instance = tx)
+        return render(request,template_name='transaction.html',context={'form':form})
 
-    def get_success_url(self):
-        return  reverse_lazy('account:transactionList')
+    if request.method == 'POST':
+        form = TransactionForm(request.POST)
+        if form.is_valid():
+            obj=form.save(commit=False)
+            obj.updatedBy = user
+            obj.project = project
+            obj.id = tx.id
+            obj.save()
 
-    def get_queryset(self):
-        return Transaction.objects.filter(id=self.kwargs['pk'])
+        else:
+            error={'message':'Error in Data input to Minutes'}
+            return render(request,template_name='error.html',context=error)
+
+    txs = Transaction.objects.all().filter(project_id=tx.project_id)
+    context ={
+        'transaction_list':txs,
+        'project':project,
+        'userRole':UserRole.EDIT
+    }
+    return render(request,template_name="transaction_list.html",context=context)
 
 @login_required
 def transactionDelView(request,pk):

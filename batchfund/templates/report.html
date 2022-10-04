@@ -1,0 +1,43 @@
+{% extends 'home/base.html' %}
+{% block content %}
+
+<div class="container-fluid">
+    <div class="row text-center justify-content-center">
+            <div class="card mt-2 mb-2">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-9 col-lg-9" align="left">
+                        <div class="alert alert-success text-center justify-content-center">
+                           <strong>Project Name :{{project.name}}</strong> <br><br>
+                        </div>
+                        <div class="alert alert-info text-center justify-content-center">
+                            Total Amount Deposited: {{tx_total}},  Contributors : {{tx_count}}<br>
+                            Total Amount Pledged  : {{contrib_total}}, Contributors : {{contrib_count}}
+                         </div>
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Frequency</th>
+                                    <th scope="col">Amount</th>
+                                    <th scope="col">Count</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                               {% for cx in freq_list %}
+                                <tr>
+                                    <td>{{cx.frequency}}</td>
+                                    <td>{{cx.amount}} </td>
+                                    <td>{{cx.cnt}} </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        </div>
+                </div>
+                <hr>
+            </div>
+        </div>
+    </div>
+ </div>
+{% include 'home/footer.html' %}
+{% endblock content %}

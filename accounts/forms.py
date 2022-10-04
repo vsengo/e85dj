@@ -31,7 +31,7 @@ class MemberForm(forms.ModelForm):
         }
     class Meta:
         model = Member
-        fields = ("mobile","city", "country", "dob")
+        fields = ("mobile","city", "country", "dob",'photo')
     
     def save(self,commit=True):
         member = super(MemberForm,self).save(commit=False)

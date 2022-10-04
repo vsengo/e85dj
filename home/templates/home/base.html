@@ -34,15 +34,16 @@
                 </a>                    
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href={% url 'batchfund:constitution' %}>Constitution</a></li>
-                    <li><a class="dropdown-item" href={% url 'batchfund:contributionAdd' %}>Contribute</a></li>
+                    <li><a class="dropdown-item" href={% url 'batchfund:contributorAdd' 1%}>Contribute</a></li>
                     {% if user.is_authenticated %}
                     <hr>
                     <li><a class="dropdown-item disabled" href=# style="color:violet">Member Only</a></li>
                     <li><a class="dropdown-item" href={% url 'accounts:minuteList' 1 %}>Meeting Minutes</a></li>
-                    <li><a class="dropdown-item" href={% url 'accounts:financialReport' 1 %}>Report</a></li>
+                    <li><a class="dropdown-item" href={% url 'batchfund:report' 1 %}>Report</a></li>       
                     <hr>
                     <li><a class="dropdown-item disabled" href=# style="color:violet">Committee Only</a></li>
                     <li><a class="dropdown-item" href={% url 'accounts:transactionList' 1%}>Transactions</a></li>
+                    <li><a class="dropdown-item" href={% url 'batchfund:contributorList' 1%}>Contributors</a></li>
                     {% endif %}                      
                 </ul>
                 </div>
@@ -54,19 +55,18 @@
                     </a>                    
                   <ul class="dropdown-menu">
                       <li><a class="dropdown-item" href={% url 'paddyprj:information' %}>Information</a></li>
-                      <li><a class="dropdown-item" href={% url 'paddyprj:status' %}>Status Updates</a></li>
-                      <li><a class="dropdown-item" href={% url 'paddyprj:investorAdd' %}>Invest</a></li>
+                      <li><a class="dropdown-item" href={% url 'paddyprj:status' %}>Updates</a></li>
+                      <li><a class="dropdown-item" href={% url 'paddyprj:investorAdd' 2 %}>Invest</a></li>
                       {% if user.is_authenticated %}
                       <hr>
                       <li><a class="dropdown-item disabled" href=# style="color:violet">Investor Only</a></li>
                       <li><a class="dropdown-item" href={% url 'accounts:minuteList' 2 %}>Meeting Minutes</a></li>
-                      <li><a class="dropdown-item" href={% url 'accounts:financialReport' 2 %}>Report</a></li>
-                      {% endif %}    
-                      {% if user.is_staff %}
+                      <li><a class="dropdown-item" href={% url 'accounts:financialReport' 2 %}>Financial Report</a></li>
                       <hr>
                       <li><a class="dropdown-item disabled" href=# style="color:violet">Committee Only</a></li>
-                      <li><a class="dropdown-item" href={% url 'paddyprj:prjStatusList' %}>Update Status</a></li>
+                      <li><a class="dropdown-item" href={% url 'paddyprj:prjStatusList' 2 %}>Update Status</a></li>
                       <li><a class="dropdown-item" href={% url 'accounts:transactionList' 2%}>Transactions</a></li>
+                      <li><a class="dropdown-item" href=#>Investors</a></li>
                       </li>
                       {% endif %}
                   </ul>
@@ -75,7 +75,7 @@
               <li class="nav-item">
                 <div class="dropdown">                        
                     {% if user.is_authenticated %}
-                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">{{user.first_name}}</a> 
+                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">{{user.first_name}} {{user.last_name}}</a> 
                         <ul class="dropdown-menu"> 
                         <li><a class="dropdown-item" href={% url 'accounts:logoff' %}>Log Off</a></li>
                         <li><a class="dropdown-item" href={% url 'accounts:member' %}>Profile</a></li>

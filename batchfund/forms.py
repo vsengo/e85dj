@@ -8,7 +8,7 @@ class ContributeForm(forms.ModelForm):
         }
     class Meta:
         model = Contribution
-        fields = ('amount','currency','frequency','startDate')
+        fields = ('user','amount','currency','frequency','startDate')
     
     def save(self,commit=True):
         data = super(ContributeForm,self).save(commit=False)

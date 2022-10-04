@@ -3,7 +3,7 @@ from django.contrib.auth import views as auth_views
 from django.urls import path,re_path,include
 from .views import  SignUpView, logOff, logIn, memberView, projectAddView,projectListView,projectDelView,ProjectUpd
 from .views import committeeAddView, CommitteeUpd, committeeDelView,committeeListView, minuteAddView, minuteDelView, minuteListView, minuteUpdView
-from .views import transactionAddView, transactionDelView, transactionListView, transactionSummary, TransactionUpd, financialReport
+from .views import transactionAddView, transactionDelView, transactionListView, transactionSummary, transactionUpdView, financialReport
 
 urlpatterns = [
     re_path(r'signup', SignUpView.as_view(), name='signup'),
@@ -18,7 +18,7 @@ urlpatterns = [
 
     re_path(r'transactionList(?P<pk>\d+)', transactionListView, name='transactionList'),
     re_path(r'transactionAdd(?P<pk>\d+)', transactionAddView, name='transactionAdd'),
-    re_path(r'transactionUpd(?P<pk>\d+)', TransactionUpd.as_view(), name='transactionUpd'),
+    re_path(r'transactionUpd(?P<pk>\d+)', transactionUpdView, name='transactionUpd'),
     re_path(r'transactionDel(?P<pk>\d+)', transactionDelView, name='transactionDel'),
 
     re_path(r'financialReport(?P<pk>\d+)', financialReport, name='financialReport'),
@@ -54,7 +54,7 @@ urlpatterns = [
              template_name='accounts/password_reset/pwdreset_confirm.html'),
          name='password_reset_confirm'),
 
-    path('password_reset_complete$',
+    path('password_reset_complete',
          auth_views.PasswordResetCompleteView.as_view(template_name='accounts/password_reset/pwdreset_complete.html'),
          name='password_reset_complete'),
 ]

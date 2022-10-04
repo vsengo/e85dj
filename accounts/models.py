@@ -3,7 +3,7 @@ from django.db import models
 from django.contrib.auth.models import User, Group
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from datetime import datetime
+from django.utils  import timezone
 
 class UserRole:
     EDIT='EDIT'
@@ -16,7 +16,9 @@ class Member(models.Model):
     mobile = models.TextField(max_length=12, blank=True)
     city = models.CharField(max_length=30, blank=True)
     dob = models.DateField(null=True, blank=True)
-    country = models.CharField(max_length=30, blank=True)
+    country = models.CharField(max_length=30, blank=True)    
+    photo = models.ImageField(upload_to='profile/',blank=True, null=True)
+
     def __str__(self):
         return "%s " % (self.user.first_name) 
 
@@ -50,13 +52,13 @@ class Project(models.Model):
     name = models.CharField(max_length=64)
     purpose = models.TextField(max_length=2000, blank=True)
     status = models.CharField(max_length=3,choices=PROJ_STATUS,default=NOT_STARTED)
-    startDate = models.DateField(default=datetime.now())
+    startDate = models.DateField(default=timezone.now)
     endDate = models.DateField(null=True, blank=True)
     currentFund = models.IntegerField(null=True)
     futureFund = models.IntegerField(null=True)
     targetFund = models.IntegerField(null=True)
     updatedBy = models.ForeignKey(User,on_delete=models.CASCADE)
-    updatedOn = models.DateTimeField(default=datetime.now())
+    updatedOn = models.DateTimeField(default=timezone.now)
     prjType = models.ForeignKey(ProjectType, on_delete=models.CASCADE)
 
     def isCommiteeMember(self, user):
@@ -65,6 +67,13 @@ class Project(models.Model):
         if committee.exists():
             return True
         return False
+    
+    def getUserRole(self, user):
+        member= Member.objects.get(user_id=user.id)
+        committee = Commitee.objects.all().filter(project_id=self.id).filter(member_id = member.id)
+        if committee.exists():
+            return UserRole.EDIT
+        return UserRole.VIEW
 
 class Role(models.Model):
     title = models.CharField(max_length=64, blank=False, help_text="name")
@@ -83,10 +92,10 @@ class Commitee(models.Model):
     member=models.ForeignKey(Member, on_delete=models.CASCADE)
     role = models.ForeignKey(Role, on_delete=models.CASCADE)
     status = models.CharField(max_length=2,choices=COMMITEE_STATUS,default=CURRENT)
-    startDate = models.DateField(default=datetime.now())
+    startDate = models.DateField(default=timezone.now)
     endDate = models.DateField(null=True, blank=True)
     updatedBy = models.ForeignKey(User,on_delete=models.CASCADE)
-    updatedOn = models.DateTimeField(default=datetime.now())
+    updatedOn = models.DateTimeField(default=timezone.now)
 
 class Minute(models.Model):
     project=models.ForeignKey(Project, on_delete=models.CASCADE)
@@ -96,7 +105,7 @@ class Minute(models.Model):
     todos      = models.CharField(max_length=1000)
     date = models.DateField(null=True, blank=True)
     updatedBy = models.ForeignKey(User,on_delete=models.CASCADE)
-    updatedOn = models.DateTimeField(default=datetime.now())
+    updatedOn = models.DateTimeField(default=timezone.now)
 
 class ExpenseType(models.Model):
     expense = models.CharField(max_length=16)
@@ -118,8 +127,8 @@ class Transaction(models.Model):
     txType  = models.CharField(max_length=10,choices=TXTYPE)
     exType  = models.ForeignKey(ExpenseType, on_delete=models.CASCADE)
     remarks =models.CharField(max_length=100,blank=True,null=True)
-    amount  = models.IntegerField(max_length=9)
-    date    = models.DateField(default=datetime.now())
+    amount  = models.IntegerField()
+    date    = models.DateField(default=timezone.now)
     receipt = models.FileField(upload_to='transaction/%Y',null=True,blank=True)
     updatedBy = models.ForeignKey(User,on_delete=models.CASCADE)
-    updatedOn = models.DateTimeField(default=datetime.now())
+    updatedOn = models.DateTimeField(default=timezone.now)

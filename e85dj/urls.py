@@ -23,7 +23,7 @@ from batchfund import urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    re_path(r'^$', include('home.urls')),
+    re_path(r'', include('home.urls')),
     re_path(r'accounts/', include(('accounts.urls','accounts'),namespace='accounts')),
     re_path(r'batchfund/', include(('batchfund.urls','batchfund'),namespace='batchfund')),
     re_path(r'paddyprj/', include(('paddyprj.urls','paddyprj'),namespace='paddyprj')),

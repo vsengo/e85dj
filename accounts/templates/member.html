@@ -7,7 +7,11 @@
     <div class="row no-gutter">
         <div class="col-md-6 col-lg-8">
         <h2 class="login-heading mb-4">Please update your profile</h2>
-            <form method="post">
+                {{member.user.first_name}} {{member.user.last_name}}
+                {% if member.photo %}
+                <img class="card-img-top" src="{{ member.photo.url }}" alt="Card image" width="50"">
+                {% endif %}
+                    <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 {{ form | crispy}}
                 <div>

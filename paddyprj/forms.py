@@ -29,7 +29,7 @@ class InvestorForm(forms.ModelForm):
         if commit:
             data.save()
 
-        return DataHandler
+        return data
 
 class ProjectStatusForm(forms.ModelForm):
     class Meta:
