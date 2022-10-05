@@ -6,12 +6,12 @@
 <div class="container-fluid">
     <div class="row no-gutter">
         <div class="col-md-6 col-lg-8">
-        <h2 class="login-heading mb-4">Invest in Project : {{project.name}}</h2>
+        <h2 class="login-heading mb-4">Meeting Minute for {{project.name}}</h2>
             <form method="post">
                 {% csrf_token %}
                 {{ form | crispy}}
                 <div>
-                    <button type="submit" class="btn btn-dark btn-sm">Update Investor</button>
+                    <button type="submit" class="btn btn-dark btn-sm">Add or Update</button>
                 </div>
             </form>
         </div>

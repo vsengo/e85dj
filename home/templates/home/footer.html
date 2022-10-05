@@ -1,4 +1,21 @@
-<footer class="footer navbar-bottom py-3 bg-info">
+<br>
+<footer class="footer navbar-bottom py-3" style="background-color:#ba0015">
+    {% if messages %}
+    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+          <strong class="me-auto">Messages</strong>
+          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            <ul class="messages">
+                {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+
+        </div>
+    </div>   
+    {% endif %}
     <div class="container">
         <p class="text-center text-white m-0"><strong>Copyright &copy; www.e85pera.net (2022) </strong> Contact webadmin@e85pera.net</p>
         <p class="text-center text-white m-0"> The non-profit site serves Engineering-85 Alumni's of Peradeniya university, Srilanka. </p>

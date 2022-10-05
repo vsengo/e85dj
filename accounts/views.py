@@ -1,6 +1,6 @@
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.models import User
-from django.contrib.auth import logout, login, authenticate
+from django.contrib.auth import logout, login, authenticate, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.template  import loader
@@ -16,7 +16,7 @@ from os import path, rename
 from util import img
 from PIL import Image
 from datetime import datetime
-from accounts.forms import RegisterForm, MemberForm, ProjectForm, CommiteeForm, MinuteForm, TransactionForm
+from accounts.forms import RegisterForm, UserForm, MemberForm, ProjectForm, CommiteeForm, MinuteForm, TransactionForm
 from accounts.models import Commitee, Member, Project, Minute, UserRole, Transaction, ExpenseType
 
 class SignUpView(generic.CreateView):
@@ -51,16 +51,42 @@ def logIn(request):
                     context={"form":form})
 
 @login_required
+def change_password(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  # Important!
+            messages.success(request, 'Your password was successfully updated!')
+            return redirect('login')
+        else:
+            messages.error(request, 'Please correct the error below.')
+    else:
+        form = PasswordChangeForm(request.user)
+    return render(request, 'change_password.html', {
+        'form': form
+    })
+
+@login_required
 def memberView(request):
     member = Member.objects.get(user_id=request.user.id)
+    user = User.objects.get(id=request.user.id)
+    
     if request.method == 'GET':
-        form = MemberForm(instance=member)
-        return render(request = request,template_name = "member.html",context={"form":form, 'member':member})
+        profile_form = MemberForm(instance=member)
+
+        user_form = UserForm(instance=user)
+        return render(request = request,template_name = "member.html",context={"profile_form":profile_form, 'user_form':user_form, 'member':member})
         
     if request.method == 'POST':
-        form = MemberForm(request.POST,request.FILES)
-        if form.is_valid():
-            obj=form.save(commit=False)
+        member_form = MemberForm(request.POST,request.FILES, instance=request.user.member)
+        user_form = UserForm(request.POST,instance=request.user)
+        if user_form.is_valid():
+            obj=user_form.save(commit=False)
+            obj.save(update_fields=['first_name','last_name','email'])
+
+        if member_form.is_valid():
+            obj=member_form.save(commit=False)
             user = User.objects.get(id=request.user.id)
             obj.user = user
             obj.id=member.id
@@ -83,6 +109,7 @@ def memberView(request):
                 rename(opath,npath)
                 obj.photo.name = "profile/"+nfname
                 obj.save()
+                messages.success(request, "Profile information was updated. Successfully")
 
         return redirect('/')
 
@@ -139,26 +166,23 @@ class ProjectUpd(UpdateView):
 @login_required
 def committeeAddView(request,pk):
     project = Project.objects.get(id=pk)
-
+    user = User.objects.get(id=request.user.id)
     if request.method == 'GET':
         form = CommiteeForm()
         if project.isCommiteeMember(user):
-            form = MinuteForm()
             return render(request = request,template_name = "committee.html",context={"form":form,'project':project})
         else:
             error={'message':user.first_name+" is not a committee member of "+project.name}
             return render(request,template_name='accessControl.html',context=error)
  
     if request.method == 'POST':
-        user = User.objects.get(id=request.user.id)
-
         form = CommiteeForm(request.POST)
         if form.is_valid():
             obj=form.save(commit=False)
             obj.updatedBy = user
             obj.project = project
             obj.save()
-            committees = Commitee.objects.all().filter(updatedBy=request.user.id)
+            committees = Commitee.objects.all().filter(project_id=pk)
             context ={
                 'committee_list':committees,
                 'project':project,
@@ -175,10 +199,7 @@ def committeeListView(request,pk):
         committees = Commitee.objects.all().filter(project_id=pk)
         project = Project.objects.get(id=pk)
         user = User.objects.get(id=request.user.id)
-        userRole = UserRole.VIEW
-        userRole=UserRole.VIEW
-        if project.isCommiteeMember(user):
-            userROle=UserRole.EDIT
+        userRole=project.getUserRole(user)
 
         return render(request = request,template_name = "committee_list.html",context={'committee_list':committees, 'project':project, 'userRole':userRole})
 

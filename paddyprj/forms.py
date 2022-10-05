@@ -22,7 +22,7 @@ class PaddyPrjForm(forms.ModelForm):
 class InvestorForm(forms.ModelForm):
     class Meta:
         model = Investor
-        fields = ['amount','startDate','endDate']
+        fields = ['user','shares','startDate','endDate']
     
     def save(self, commit=True):
         data = super(InvestorForm, self).save(commit=False)

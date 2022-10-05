@@ -37,11 +37,11 @@
                     <li><a class="dropdown-item" href={% url 'batchfund:contributorAdd' 1%}>Contribute</a></li>
                     {% if user.is_authenticated %}
                     <hr>
-                    <li><a class="dropdown-item disabled" href=# style="color:violet">Member Only</a></li>
+                    <li><a class="dropdown-item disabled" href=# style="color:#ba0015">Member Only</a></li>
                     <li><a class="dropdown-item" href={% url 'accounts:minuteList' 1 %}>Meeting Minutes</a></li>
                     <li><a class="dropdown-item" href={% url 'batchfund:report' 1 %}>Report</a></li>       
                     <hr>
-                    <li><a class="dropdown-item disabled" href=# style="color:violet">Committee Only</a></li>
+                    <li><a class="dropdown-item disabled" href=# style="color:#ba0015">Committee Only</a></li>
                     <li><a class="dropdown-item" href={% url 'accounts:transactionList' 1%}>Transactions</a></li>
                     <li><a class="dropdown-item" href={% url 'batchfund:contributorList' 1%}>Contributors</a></li>
                     {% endif %}                      
@@ -59,14 +59,14 @@
                       <li><a class="dropdown-item" href={% url 'paddyprj:investorAdd' 2 %}>Invest</a></li>
                       {% if user.is_authenticated %}
                       <hr>
-                      <li><a class="dropdown-item disabled" href=# style="color:violet">Investor Only</a></li>
+                      <li><a class="dropdown-item disabled" href=# style="color:#ba0015">Investor Only</a></li>
                       <li><a class="dropdown-item" href={% url 'accounts:minuteList' 2 %}>Meeting Minutes</a></li>
                       <li><a class="dropdown-item" href={% url 'accounts:financialReport' 2 %}>Financial Report</a></li>
                       <hr>
-                      <li><a class="dropdown-item disabled" href=# style="color:violet">Committee Only</a></li>
+                      <li><a class="dropdown-item disabled" href=# style="color:#ba0015">Committee Only</a></li>
                       <li><a class="dropdown-item" href={% url 'paddyprj:prjStatusList' 2 %}>Update Status</a></li>
-                      <li><a class="dropdown-item" href={% url 'accounts:transactionList' 2%}>Transactions</a></li>
-                      <li><a class="dropdown-item" href=#>Investors</a></li>
+                      <li><a class="dropdown-item" href={% url 'accounts:transactionList' 2 %}>Transactions</a></li>
+                      <li><a class="dropdown-item" href={% url 'paddyprj:investorList' 2 %}>Investors</a></li>
                       </li>
                       {% endif %}
                   </ul>
@@ -96,7 +96,6 @@
             </ul>
           </div>
     </nav>
-
     <div id="wrapper">
         {% block content %}
         {% endblock %}

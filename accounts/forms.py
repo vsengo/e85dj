@@ -14,12 +14,20 @@ class RegisterForm(UserCreationForm):
         fields = ("first_name", "last_name", "email", "username")
 
     def save(self, commit=True):
-        print("Saving signup")
         user = super(UserCreationForm, self).save(commit=False)
         user.set_password(self.cleaned_data["password1"])
         if commit:
             user.save()
         return user
+
+class UserForm(forms.ModelForm):
+    email = forms.EmailField(required=True,widget=forms.TextInput(attrs={'class': 'form-control'}))
+    first_name = forms.CharField(label = "First Name")
+    last_name = forms.CharField(label = "Last Name")
+
+    class Meta:
+        model=User
+        fields = ("first_name","last_name","email")
 
 class MemberForm(forms.ModelForm):
     mobile =forms.CharField(label="Mobile Number (country) (number)")

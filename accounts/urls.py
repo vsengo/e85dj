@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import path,re_path,include
-from .views import  SignUpView, logOff, logIn, memberView, projectAddView,projectListView,projectDelView,ProjectUpd
+from .views import  SignUpView, logOff, logIn, memberView, projectAddView,projectListView,projectDelView,ProjectUpd, change_password
 from .views import committeeAddView, CommitteeUpd, committeeDelView,committeeListView, minuteAddView, minuteDelView, minuteListView, minuteUpdView
 from .views import transactionAddView, transactionDelView, transactionListView, transactionSummary, transactionUpdView, financialReport
 
@@ -33,7 +33,8 @@ urlpatterns = [
     re_path(r'minuteAdd(?P<pk>\d+)', minuteAddView, name='minuteAdd'),
     re_path(r'minuteDel(?P<pk>\d+)', minuteDelView, name='minuteDel'),
     re_path(r'minuteUpd(?P<pk>\d+)', minuteUpdView, name='minuteUpd'),
-
+    
+    re_path(r'^change_password/$', change_password, name='change_password'),
 
     re_path(r'password_reset/',
          auth_views.PasswordResetView.as_view(

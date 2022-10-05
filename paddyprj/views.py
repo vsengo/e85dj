@@ -67,6 +67,69 @@ def investorAddView(request, pk):
             error={'message':'Error'}
             return render(request,template_name='error.html',context=error)
 
+@login_required
+def investorListView(request, pk):
+    prj=Project.objects.get(id=pk)
+    user = User.objects.get(id=request.user.id)
+    if request.method == 'GET':
+        userRole=prj.getUserRole(user)
+        paddy=PaddyProject.objects.get(project_id=prj.id)
+        status_list = Investor.objects.all().filter(project_id=paddy.id)
+        return render(request = request,template_name = "investor_list.html",context={'project':prj, 'status_list':status_list, 'userRole':userRole})
+
+@login_required
+def investorUpdView(request,pk):
+    user = User.objects.get(id=request.user.id)
+    ctx = Investor.objects.get(id=pk)  
+    project = Project.objects.get(id=ctx.project_id)
+    
+    if request.method == 'GET':
+        form  = InvestorForm(instance = ctx)
+        return render(request,template_name='investor.html',context={'form':form})
+
+    if request.method == 'POST':
+        form = InvestorForm(request.POST,request.FILES )
+        if form.is_valid():
+            obj=form.save(commit=False)
+            obj.updatedBy = user
+            paddyPrj = PaddyProject.objects.get(project_id = project.id)
+            obj.project = paddyPrj
+            obj.id = ctx.id
+            obj.save()
+        else:
+            error={'message':'Error in Data input to Minutes'}
+            return render(request,template_name='error.html',context=error)
+
+    ctx = Investor.objects.all().filter(project_id=project.id)
+    userRole = project.getUserRole(user)
+
+    context ={
+        'investor_list':ctx,
+        'project':project,
+        'userRole':userRole
+    }
+    return render(request,template_name="investor_list.html",context=context)
+
+@login_required
+def investorDelView(request,pk):
+    sts = Investor.objects.filter(id=pk).first()
+    user = User.get(id=request.user.id)
+    pid=sts.project_id
+    sts.delete()
+    ctx = Investor.objects.all().filter(project_id = pid)
+    paddy = PaddyProject.objects.get(id=pid)
+    project = Project.objects.get(id=paddy.project_id)
+    userRole=prj.getUserRole(user)
+
+    context ={
+        'investor_list':ctx,
+        'project':project,
+        'userRole':userRole
+    }
+
+    return  render(request,template_name="investor_list.html",context=context)
+
+
 #Project Status
 @login_required
 def prjStatusListView(request, pk):

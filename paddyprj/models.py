@@ -32,7 +32,7 @@ def save_project_paddyproject(sender, instance, **kwargs):
 class Investor(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     project = models.ForeignKey(PaddyProject, on_delete=models.CASCADE)
-    amount = models.IntegerField()
+    shares = models.IntegerField()
     startDate = models.DateField(default=timezone.now)
     endDate = models.DateField(null=True, blank=True)
     updatedOn = models.DateTimeField(default=timezone.now)

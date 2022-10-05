@@ -109,7 +109,7 @@ def reportView(request,pk):
     cns = Contribution.objects.all().filter(project_id=pk)
     cns_count=cns.count()
     cns_total = cns.aggregate(total=Sum('amount'))
-    freq_sum = cns.annotate(Sum('frequency')).annotate(cnt=Count('frequency'))  
+    freq_sum = Contribution.objects.values('frequency').annotate(Sum('amount')).annotate(cnt=Count('frequency'))  
     freq_cnt = cns.annotate(Count('frequency')) 
     freq_list=freq_sum
     

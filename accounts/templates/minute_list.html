@@ -1,0 +1,56 @@
+{% extends 'home/base.html' %}
+{% block content %}
+
+<div class="container-fluid">
+    <div class="row text-center justify-content-center">
+        
+        {% if userRole == 'EDIT' %}
+        <p >Review Minutes and Update or Delete or
+         <a href="{% url 'accounts:minuteAdd' project.id %}" class="btn btn-primary btn-sm">Add Minute</a>
+         </p>
+        {% endif %}
+
+        {% for minute in minute_list %}
+        <div class="card mt-2 mb-2">
+            <div class="card-header">
+                <div class="row">
+                    <p>
+                        Minutes for : {{project.name}}
+                        Meeting Date :{{minute.date}}
+                    </p>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-9 col-lg-9" align="left">
+                        <div class="alert alert-info text-left justify-content-left">
+                            <strong>Attendees : </strong> {{minute.attendees}} 
+                        </div>
+                        <div class="alert alert-info text-left justify-content-left">
+                            <strong>Discussion : </strong> {{minute.discussion}}
+                        </div>
+                        <div class="alert alert-info text-left justify-content-left">
+                            <strong>Resolution : </strong> {{minute.resolution}}
+                        </div>
+                        <div class="alert alert-info text-left justify-content-left">
+                            <strong>ToDo's : </strong> {{minute.todos}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-secondary">
+                {% if userRole == 'EDIT' %}
+                <p style="color:white">Review Minutes and Update or Delete
+                 <a href="{% url 'accounts:minuteUpd' minute.id %}" class="btn btn-primary btn-sm">Edit Minute</a>
+                 <a href="{% url 'accounts:minuteDel' minute.id %}" class="btn btn-primary btn-sm">Delete Minute</a>
+                 </p>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+ </div>
+
+{% include 'home/footer.html' %}
+{% endblock content %}
