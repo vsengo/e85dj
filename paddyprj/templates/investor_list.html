@@ -29,7 +29,7 @@
                             <tbody>
                                {% for sts in investor_list %}
                                 <tr>
-                                    <th scope=""row"></th>
+                                    <th scope=""row">{{forloop.counter}}</th>
                                     <td>{{sts.user.first_name}} {{sts.last_name}}</td>
                                     <td>{{sts.shares}} </td>
                                     {% if userRole == 'EDIT' %}

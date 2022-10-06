@@ -29,7 +29,7 @@
                 <tbody>
                    {% for committee in committee_list %}
                     <tr>
-                        <th scope=""row">1</th>
+                        <th scope=""row">{{forloop.counter}}</th>
                         <td>{{committee.member.user.first_name}} {{commitee.member.user.last_name}}</td>
                         <td>{{committee.role}} </td>
                         <td>{{committee.status}} </td>

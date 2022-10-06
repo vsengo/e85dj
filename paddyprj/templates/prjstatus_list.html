@@ -29,7 +29,7 @@
                             <tbody>
                                {% for sts in status_list %}
                                 <tr>
-                                    <th scope=""row">1</th>
+                                    <th scope=""row">{{forloop.counter}}</th>
                                     <td>{{sts.title}}</td>
                                     <td>{{sts.content}} </td>
                                     {% if userRole == 'EDIT' %}

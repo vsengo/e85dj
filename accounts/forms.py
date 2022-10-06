@@ -107,3 +107,16 @@ class TransactionForm(forms.ModelForm):
             data.save()
 
         return data
+
+class TransactionUserForm(forms.ModelForm):
+    exType=forms.ModelChoiceField(queryset=ExpenseType.objects.filter())
+    class Meta:
+        model = Transaction
+        fields = ['project','txType','exType','remarks','amount','receipt','date']
+
+    def save(self, commit=True):
+        data = super(TransactionUserForm, self).save(commit=False)
+        if commit:
+            data.save()
+
+        return data

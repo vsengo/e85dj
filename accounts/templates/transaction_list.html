@@ -24,7 +24,8 @@
                                     <th scope="col">Amount</th>
                                     <th scope="col">Date</th>
                                     <th scope="col">Remarks</th>
-                                    {% if user.is_staff %}
+                                    <th scope="col">Receipt</th>
+                                    {% if userRole == 'EDIT' %}
                                     <th scope="col">Update </th>
                                     <th scope="col">Delete </th>
                                     {% endif %} 
@@ -33,13 +34,20 @@
                             <tbody>
                                {% for tx in transaction_list %}
                                 <tr>
-                                    <th scope=""row">{{tx.id}}</th>
+                                    <th scope=""row">{{forloop.counter}}</th>
                                     <td>{{tx.txOwner.first_name}} {{tx.txOwner.last_name}}</td>
                                     <td>{{tx.txType}} </td>
                                     <td>{{tx.exType}} </td>
                                     <td>{{tx.amount}} </td>
                                     <td>{{tx.date}}</td>
                                     <td>{{tx.remarks}}</td>
+                                    <td>
+                                        {% if tx.receipt %}
+                                            <li><a href="{{ tx.receipt.url}}">Receipt</a></li>
+                                        {% else %}
+                                            No Receipt
+                                        {% endif %}
+                                    </td>
                                     {% if userRole == 'EDIT' %}
                                     <td><a href="{% url 'accounts:transactionUpd' tx.id %}">Edit</a></td>
                                     <td><a href="{% url 'accounts:transactionDel' tx.id %}">Delete</a></td>

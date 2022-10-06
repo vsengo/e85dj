@@ -31,7 +31,7 @@
                             <tbody>
                                {% for cx in contributor_list %}
                                 <tr>
-                                    <th scope=""row">{{cx.id}}</th>
+                                    <th scope=""row">{{forloop.counter}}</th>
                                     <td>{{cx.user.first_name}} {{cx.user.last_name}}</td>
                                     <td>{{cx.currency}} {{cx.amount}} </td>
                                     <td>{{cx.frequency}} </td>

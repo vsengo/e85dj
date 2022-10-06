@@ -16,7 +16,7 @@ from os import path, rename
 from util import img
 from PIL import Image
 from datetime import datetime
-from accounts.forms import RegisterForm, UserForm, MemberForm, ProjectForm, CommiteeForm, MinuteForm, TransactionForm
+from accounts.forms import RegisterForm, UserForm, MemberForm, ProjectForm, CommiteeForm, MinuteForm, TransactionForm, TransactionUserForm
 from accounts.models import Commitee, Member, Project, Minute, UserRole, Transaction, ExpenseType
 
 class SignUpView(generic.CreateView):
@@ -73,11 +73,21 @@ def memberView(request):
     user = User.objects.get(id=request.user.id)
     
     if request.method == 'GET':
+        transaction = Transaction.objects.all().filter(txOwner_id=user.id).order_by('project_id').order_by('date')
+
+        return render(request = request,template_name = "member.html",context={'member':member, 'transaction_list':transaction})
+
+@login_required
+def memberUpdView(request):
+    member = Member.objects.get(user_id=request.user.id)
+    user = User.objects.get(id=request.user.id)
+    
+    if request.method == 'GET':
         profile_form = MemberForm(instance=member)
 
         user_form = UserForm(instance=user)
-        return render(request = request,template_name = "member.html",context={"profile_form":profile_form, 'user_form':user_form, 'member':member})
-        
+        return render(request = request,template_name = "member_upd.html",context={"profile_form":profile_form, 'user_form':user_form, 'member':member})
+
     if request.method == 'POST':
         member_form = MemberForm(request.POST,request.FILES, instance=request.user.member)
         user_form = UserForm(request.POST,instance=request.user)
@@ -111,7 +121,7 @@ def memberView(request):
                 obj.save()
                 messages.success(request, "Profile information was updated. Successfully")
 
-        return redirect('/')
+        return redirect('accounts:member')
 
 @login_required
 def logOff(request):
@@ -330,6 +340,7 @@ def transactionListView(request, pk):
         userRole = prj.getUserRole(user)
         context={'project':prj, 'transaction_list':transactions, 'userRole':userRole}
         return render(request = request,template_name = "transaction_list.html",context=context)
+
 @login_required
 def transactionAddView(request,pk):
     user = User.objects.get(id=request.user.id)
@@ -351,6 +362,18 @@ def transactionAddView(request,pk):
                 obj.updatedBy = user
                 obj.project = prj
                 obj.save()
+
+                if obj.receipt:
+                    today = datetime.now()
+                    fname, ext = path.splitext(obj.photo.name)
+                    albumPath = path.join(settings.MEDIA_ROOT, "transaction/")
+                    opath = path.join(settings.MEDIA_ROOT,fname + ext)
+                    nfname = today.strftime("%m%dT%H%M%S") + ext
+                    npath = path.join(albumPath,nfname)
+                    rename(opath,npath)
+                    obj.photo.name = "transaction/"+nfname
+                    obj.save(update_fields=['receipt'])
+
                 return render(request,template_name="transaction_success.html",context={'transaction':obj,'project':prj})
             except IntegrityError as e:
                 error={'message':'Could not save to database'}
@@ -370,7 +393,7 @@ def transactionUpdView(request,pk):
         return render(request,template_name='transaction.html',context={'form':form})
 
     if request.method == 'POST':
-        form = TransactionForm(request.POST)
+        form = TransactionForm(request.POST, request.FILES)
         if form.is_valid():
             obj=form.save(commit=False)
             obj.updatedBy = user
@@ -378,6 +401,16 @@ def transactionUpdView(request,pk):
             obj.id = tx.id
             obj.save()
 
+            if obj.receipt:
+                    today = datetime.now()
+                    fname, ext = path.splitext(obj.receipt.name)
+                    albumPath = path.join(settings.MEDIA_ROOT, "transaction/"+today.strftime("%Y"))
+                    opath = path.join(settings.MEDIA_ROOT,fname + ext)
+                    nfname = today.strftime("%m%dT%H%M%S") + ext
+                    npath = path.join(albumPath,nfname)
+                    rename(opath,npath)
+                    obj.receipt.name = "transaction/"+today.strftime("%Y")+"/"+nfname
+                    obj.save(update_fields=['receipt'])
         else:
             error={'message':'Error in Data input to Minutes'}
             return render(request,template_name='error.html',context=error)
@@ -400,6 +433,51 @@ def transactionDelView(request,pk):
     project = Project.objects.get(id=prj.id)
     return  render(request,template_name="transaction_list.html",context={'transaction_list':transactions,'project':project})
 
+#User Transactions
+@login_required
+def transactionUserAddView(request):
+    return transactionUserView(request,'x')
+
+def transactionUserView(request,pk):
+    user = User.objects.get(id=request.user.id)
+
+    if request.method == 'GET':
+        if pk == 'x':
+            form = TransactionUserForm()
+        else:
+            tx = Transaction.objects.get(id=pk)
+            form = TransactionUserForm(instance=tx)
+
+        return render(request = request,template_name = "transaction.html",context={"form":form})
+        
+    if request.method == 'POST':
+        form = TransactionUserForm(request.POST,request.FILES)
+
+        if form.is_valid():
+            try:
+                obj=form.save(commit=False)
+                obj.updatedBy = user
+                obj.txOwner = user
+                obj.save()
+
+                if obj.receipt:
+                    today = datetime.now()
+                    fname, ext = path.splitext(obj.photo.name)
+                    albumPath = path.join(settings.MEDIA_ROOT, "transaction/"+today.strftime("%Y"))
+                    opath = path.join(settings.MEDIA_ROOT,fname + ext)
+                    nfname = today.strftime("%m%dT%H%M%S") + ext
+                    npath = path.join(albumPath,nfname)
+                    rename(opath,npath)
+                    obj.photo.name = "transaction/"+today.strftime("%Y")+"/"+nfname
+                    obj.save(update_fields=['receipt'])
+
+                return render(request,template_name="transaction_success.html",context={'transaction':obj,'project':obj.project})
+            except IntegrityError as e:
+                error={'message':'Could not save to database'}
+                return render(request,template_name='error.html',context=error)
+        else:
+            error={'message':'Error'}
+            return render(request,template_name='error.html',context=error)
 
 def transactionSummary(request,pk):
     labels = []

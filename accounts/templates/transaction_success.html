@@ -18,11 +18,7 @@
                 <li>Remarks           : {{transaction.remarks}}</li>
             </ul>
             <p>
-                <div>Please review and edit or delete it required</div>
-               <strong>
-                <button type="button" class="btn btn-primary"><a href="{% url 'accounts:transactionUpd' transaction.id %}">Edit</a></button>
-                <button type="button" class="btn btn-primary"><a href="{% url 'accounts:transactionDel' transaction.id %}">Delete</a></button>
-                <button type="button" class="btn btn-primary"><a href="{% url 'accounts:transactionAdd' project.id %}">Back</a></button>
+                <div>Please review and go back to edit if required</div>
             </p>
     </div>
 </div>

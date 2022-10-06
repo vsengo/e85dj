@@ -2,44 +2,82 @@
 {% block content %}
 {% load static %}
 {% load crispy_forms_tags %}
+<script>
+$(document).ready(function() {
+    $('[data-rel=popover]').popover({
+      html: true,
+      trigger: "hover"
+    });
+</script>
 
 <div class="container-fluid">
     <div class="card mt-2 mb-2">
         <div class="card-header">
-            {% if member.photo %}
-            <img class="card-img-top" src="{{ member.photo.url }}" alt="Card image" style="width:90px;height:100px;">
-            {% endif %}
-            <strong>{{member.user.first_name}} {{member.user.last_name}}</strong><br><br>
-            <a href="{% url 'accounts:change_password' %}" class="btn btn-primary btn-sm">Change Password</a>    
+            <div class="row">
+                    <div class="col-sm-3">
+                        {% if member.photo %}
+                        <img class="card-img-top" src="{{ member.photo.url }}" alt="Photo" style="width:90px;height:100px;">
+                        {% endif %}
+                    </div>
+                    <div class="col-sm-6">
+                        <p class="text-capitalize">
+                        Name    :<i>{{member.user.first_name}} {{member.user.last_name}}</i><br>
+                        Located : <i> {{member.city}} {{member.country}}</i><br>
+                        Contacts: <i>{{member.user.email}} Mobile : {{member.mobile}}</i><br>
+                        DOB     : {{member.dob}}
+                        </p>
+                    </div>
+                    <div class="col-sm-3">
+                        <a href="{% url 'accounts:change_password' %}" class="btn btn-primary btn-sm">Change Password</a> <br><br>
+                        <a href="{% url 'accounts:updateMember' %}" class="btn btn-primary btn-sm">Update Profile</a> 
+                    </div>
+            </div>
+ 
+
         </div>
         <div class="card-body">
-            {% if user_form.errors %}
-            <div class="alert alert-danger alert-dismissible" role="alert">
-                <div id="form_errors">
-                    {% for key, value in user_form.errors.items %}
-                        <strong>{{ value }}</strong>
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Action</th>
+                        <th scope="col">Expense</th>
+                        <th scope="col">Project</th>
+                        <th scope="col">Amount</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Remarks</th>
+                        <th scope="col">Receipt</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                   {% for tx in transaction_list %}
+                    <tr>
+                        <th scope=""row">{{forloop.counter}}</th>
+                        <td>{{tx.txOwner.first_name}} {{tx.txOwner.last_name}}</td>
+                        <td>{{tx.txType}} </td>
+                        <td>{{tx.exType}} </td>
+                        <td>{{tx.project.name}}</td>
+                        <td>{{tx.amount}} </td>
+                        <td>{{tx.date}}</td>
+                        <td>{{tx.remarks}}</td>
+                        <td>
+                            {% if tx.receipt %}
+                                <i><a href="{{ tx.receipt.url}}">Receipt</a></i>
+                            {% else %}
+                                No Receipt
+                            {% endif %}
+                        </td>
+                        <td><a href="{% url 'accounts:transactionUserUpd' tx.id %}">Edit</a></td>
+                    </tr>
                     {% endfor %}
-                </div>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                </tbody>
+            </table>
             </div>
-            {% endif %}
-            <form method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                <div class="form-row">
-                    <div class="col-md-5">
-                        <div class="form-group">
-                            <label class="small mb-1">Email:</label>
-                                {{ user_form | crispy  }}
-                        </div>
-                    <div>
-                    <div class="form-group">
-                        {{ profile_form | crispy}}
-                    </div>    
-                    <button type="submit" class="btn btn-dark btn-sm">Update Profile</button>
-                </div>
-            </form>
+        </div>
+        <div class="card-footer">
+            <a href="{% url 'accounts:transactionUserAdd' %}" class="btn btn-primary btn-sm">Add Transaction</a> 
         </div>
     </div>
 </div>

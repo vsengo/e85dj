@@ -3,13 +3,15 @@ from django.contrib.auth import views as auth_views
 from django.urls import path,re_path,include
 from .views import  SignUpView, logOff, logIn, memberView, projectAddView,projectListView,projectDelView,ProjectUpd, change_password
 from .views import committeeAddView, CommitteeUpd, committeeDelView,committeeListView, minuteAddView, minuteDelView, minuteListView, minuteUpdView
-from .views import transactionAddView, transactionDelView, transactionListView, transactionSummary, transactionUpdView, financialReport
+from .views import transactionAddView, transactionDelView, transactionListView, transactionSummary, transactionUpdView, financialReport, memberUpdView
+from .views import transactionUserView, transactionUserAddView
 
 urlpatterns = [
     re_path(r'signup', SignUpView.as_view(), name='signup'),
     re_path(r'logoff', logOff, name='logoff'),
     re_path(r'login', logIn, name='login'),
     re_path(r'^member', memberView, name='member'),
+    re_path(r'^updateMember', memberUpdView, name='updateMember'),
 
     re_path(r'projectList', projectListView, name='projectList'),
     re_path(r'projectAdd', projectAddView, name='projectAdd'),
@@ -20,6 +22,9 @@ urlpatterns = [
     re_path(r'transactionAdd(?P<pk>\d+)', transactionAddView, name='transactionAdd'),
     re_path(r'transactionUpd(?P<pk>\d+)', transactionUpdView, name='transactionUpd'),
     re_path(r'transactionDel(?P<pk>\d+)', transactionDelView, name='transactionDel'),
+
+    re_path(r'transactionUserAdd',transactionUserAddView, name='transactionUserAdd'),
+    re_path(r'transactionUserUpd(?P<pk>\d+)',transactionUserView, name='transactionUserUpd'),
 
     re_path(r'financialReport(?P<pk>\d+)', financialReport, name='financialReport'),
     re_path(r'transactionSummary(?P<pk>\d+)',transactionSummary, name='transactionSummary'),

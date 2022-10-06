@@ -74,6 +74,9 @@ class Project(models.Model):
             return UserRole.EDIT
         return UserRole.VIEW
 
+    def __str__(self):
+        return "%s " % (self.name) 
+
 class Role(models.Model):
     title = models.CharField(max_length=64, blank=False, help_text="name")
     
