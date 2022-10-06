@@ -119,16 +119,14 @@ def investorDelView(request,pk):
     ctx = Investor.objects.all().filter(project_id = pid)
     paddy = PaddyProject.objects.get(id=pid)
     project = Project.objects.get(id=paddy.project_id)
-    userRole=prj.getUserRole(user)
+    userRole=project.getUserRole(user)
 
     context ={
         'investor_list':ctx,
         'project':project,
         'userRole':userRole
     }
-
     return  render(request,template_name="investor_list.html",context=context)
-
 
 #Project Status
 @login_required
@@ -225,7 +223,7 @@ def prjStatusUpdView(request,pk):
 @login_required
 def prjStatusDelView(request,pk):
     sts = ProjectStatus.objects.filter(id=pk).first()
-    user = User.get(id=request.user.id)
+    user = User.objects.get(id=request.user.id)
     pid=sts.project_id
     sts.delete()
     status_list = ProjectStatus.objects.all().filter(project_id = pid)

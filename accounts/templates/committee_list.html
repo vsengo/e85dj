@@ -6,7 +6,7 @@
         
         {% if user.is_staff %}
         <p >Review Commitee members and Update or Delete or <br>
-         <a href="{% url 'accounts:committeeAdd' project.id %}" class="btn btn-primary btn-sm">Add committee</a>
+         <a href="{% url 'accounts:committeeAdd' project.id %}" class="btn btn-secondary btn-md">Add committee</a>
          </p>
         {% endif %}
 

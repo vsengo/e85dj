@@ -13,28 +13,23 @@
 </head>
 <body>
 
-
 <div id="page-content-wrapper">
-    <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-        <div class="mx-0">
-            <a href="/"><img src="{% static 'images/e85_logo2.jpg' %}" alt="e85 Logo" width="480" height="110"></a>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="navbar-brand">
+            <a href="/"><img src="{% static 'images/e85peralogo.jpg' %}" alt="e85 Logo" width="380" height="110"></a>
         </div>
-
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span><i class="fas fa-bars fa-2x"></i></span>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
         </button>
 
-        <div class="container-fluid">
-            <ul class="navbar-nav align-right">
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
               <li class="nav-item dropdown">
-                <div class="dropdown">
-                  <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">
-                    Batch Fund
-                </a>                    
+                <!-- <div class="dropdown"> -->
+                  <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">Batch Fund</a>                    
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href={% url 'batchfund:constitution' %}>Constitution</a></li>
-                    <li><a class="dropdown-item" href={% url 'batchfund:contributorAdd' 1%}>Contribute</a></li>
+                    <!-- <li><a class="dropdown-item" href={% url 'batchfund:contributorAdd' 1%}>Contribute</a></li> -->
                     {% if user.is_authenticated %}
                     <hr>
                     <li><a class="dropdown-item disabled" href=# style="color:#ba0015">Member Only</a></li>
@@ -56,7 +51,7 @@
                   <ul class="dropdown-menu">
                       <li><a class="dropdown-item" href={% url 'paddyprj:information' %}>Information</a></li>
                       <li><a class="dropdown-item" href={% url 'paddyprj:status' %}>Updates</a></li>
-                      <li><a class="dropdown-item" href={% url 'paddyprj:investorAdd' 2 %}>Invest</a></li>
+                      <!-- <li><a class="dropdown-item" href={% url 'paddyprj:investorAdd' 2 %}>Invest</a></li> -->
                       {% if user.is_authenticated %}
                       <hr>
                       <li><a class="dropdown-item disabled" href=# style="color:#ba0015">Investor Only</a></li>
@@ -94,7 +89,7 @@
                 </div>
             </li>
             </ul>
-          </div>
+        </div>
     </nav>
     <div id="wrapper">
         {% block content %}
