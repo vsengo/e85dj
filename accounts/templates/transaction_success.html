@@ -10,7 +10,7 @@
                  {{project.name}} {{project.startDate}}
             </h4>
             <ul>
-                <li>Transaction Owner : {{transaction.txOwner.first_name}} {{transaction.txOwner.last_name}}</li>
+                <li>Transaction Owner : {{transaction.owner.first_name}} {{transaction.owner.last_name}}</li>
                 <li>Transaction Type  : {{transaction.txType}} </li>
                 <li>Expense Type      : {{transaction.exType}} </li>
                 <li>Transaction Amount: {{transaction.amount}} </li>
@@ -19,6 +19,8 @@
             </ul>
             <p>
                 <div>Please review and go back to edit if required</div>
+                <a href="{% url 'accounts:transactionUpd'  transaction.id %}" class="btn btn-secondary btn-md">Update Again</a>
+                <a href="{% url 'accounts:transactionList' project.id %}" class="btn btn-secondary btn-md">Back to Transactions</a>
             </p>
     </div>
 </div>

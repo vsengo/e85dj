@@ -282,9 +282,8 @@ body {
     position: absolute;
     left: 100%;
     top: -7px;
-    }
-
-    .pera {
-      color:#ba0015
-    }
-
+  }
+  
+  .navbar-dark {
+    background:#82063B;
+  }

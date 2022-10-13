@@ -6,9 +6,10 @@ from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.urls import reverse_lazy
 from django.db.models import Sum, Count
+from django.http import JsonResponse
 from .models import Contribution
 from .forms import ContributeForm
-from accounts.models import Project, Transaction
+from accounts.models import BankAccount, Project, Transaction
 
 @login_required
 def contributorAddView(request,pk):
@@ -113,12 +114,14 @@ def reportView(request,pk):
     freq_cnt = cns.annotate(Count('frequency')) 
     freq_list=freq_sum
     
-    txs = Transaction.objects.all().filter(project_id=pk).filter(txType='DEPOSIT')
+    txs = Transaction.objects.all().filter(bank__project__id=pk).filter(txType='DEPOSIT')
     tx_count=txs.count()
     tx_total = txs.aggregate(total=Sum('amount'))
+
 
     ctx = {'contrib_count':cns_count,'contrib_total':cns_total['total'],'freq_list':freq_list,
             'tx_count':tx_count,'tx_total':tx_total['total'],
             'project':prj}
     if request.method == 'GET':
         return render(request=request,template_name="report.html",context = ctx)
+

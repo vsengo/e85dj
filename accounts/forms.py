@@ -2,7 +2,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django import forms
 from django.contrib.auth.models import User
 from util.widgets import BootstrapDateTimePickerInput
-from .models import Commitee, Member, Project, Role, Minute, ExpenseType, Transaction
+from .models import Commitee, Member, Project, Role, Minute, ExpenseType, Transaction, BankAccount
 
 class RegisterForm(UserCreationForm):
     email = forms.EmailField(label = "Email")
@@ -62,6 +62,10 @@ class ProjectForm(forms.ModelForm):
             project.save()
         return project
 
+class MemberChoiceField(forms.ModelChoiceField):
+     def label_from_instance(self, obj):
+         return "%s %s" % (obj.first_name, obj.last_name)
+
 class CommiteeForm(forms.ModelForm):
     widgets = {
             'startDate': BootstrapDateTimePickerInput(format='%Y-%m-%d'), # specify date-frmat
@@ -69,7 +73,7 @@ class CommiteeForm(forms.ModelForm):
         }
 
     role=forms.ModelChoiceField(queryset=Role.objects.filter())
-    member=forms.ModelChoiceField(queryset=Member.objects.filter())
+    member=MemberChoiceField(queryset=User.objects.filter())
 
     class Meta:
         model = Commitee
@@ -97,9 +101,11 @@ class MinuteForm(forms.ModelForm):
 
 class TransactionForm(forms.ModelForm):
     exType=forms.ModelChoiceField(queryset=ExpenseType.objects.filter())
+    owner=MemberChoiceField(queryset=User.objects.filter())
+
     class Meta:
         model = Transaction
-        fields = ['txOwner','txType','exType','remarks','amount','receipt','date']
+        fields = ['owner','bank','txType','exType','remarks','amount','receipt','date']
 
     def save(self, commit=True):
         data = super(TransactionForm, self).save(commit=False)
@@ -112,7 +118,7 @@ class TransactionUserForm(forms.ModelForm):
     exType=forms.ModelChoiceField(queryset=ExpenseType.objects.filter())
     class Meta:
         model = Transaction
-        fields = ['project','txType','exType','remarks','amount','receipt','date']
+        fields = ['bank','txType','exType','remarks','amount','receipt','date']
 
     def save(self, commit=True):
         data = super(TransactionUserForm, self).save(commit=False)
@@ -120,3 +126,25 @@ class TransactionUserForm(forms.ModelForm):
             data.save()
 
         return data
+
+class BankAccountForm(forms.ModelForm):
+    holder=MemberChoiceField(queryset=User.objects.filter())
+    class Meta:
+        model = BankAccount
+        fields = ['holder','name','purpose','bank','accNumber','branch','routing','telno','email','balance']
+
+    def save(self, commit=True):
+        data = super(BankAccountForm, self).save(commit=False)
+        if commit:
+            data.save()
+
+        return data
+
+def formfield_for_foreignkey(self, db_field, request, **kwargs):
+    if db_field.name == 'member':
+        return MemberChoiceField(queryset=User.objects.all())
+    
+    if db_field.name == 'user':
+        return MemberChoiceField(queryset=User.objects.all())
+
+    return super.formfield_for_foreignkey(db_field, request, **kwargs)

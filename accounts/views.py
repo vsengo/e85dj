@@ -9,15 +9,15 @@ from django.views import generic
 from django.views.generic import UpdateView
 from django.contrib  import messages
 from django.db import IntegrityError
-from django.db.models import Sum
+from django.db.models import Sum, Count
 from django.conf import settings
 from django.http import JsonResponse
 from os import path, rename
 from util import img
 from PIL import Image
 from datetime import datetime
-from accounts.forms import RegisterForm, UserForm, MemberForm, ProjectForm, CommiteeForm, MinuteForm, TransactionForm, TransactionUserForm
-from accounts.models import Commitee, Member, Project, Minute, UserRole, Transaction, ExpenseType
+from accounts.forms import RegisterForm, UserForm, MemberForm, ProjectForm, CommiteeForm, MinuteForm, TransactionForm, TransactionUserForm, BankAccountForm
+from accounts.models import BankAccount, Commitee, Member, Project, Minute, UserRole, Transaction, ExpenseType, BankAccount
 
 class SignUpView(generic.CreateView):
     form_class = RegisterForm
@@ -73,7 +73,7 @@ def memberView(request):
     user = User.objects.get(id=request.user.id)
     
     if request.method == 'GET':
-        transaction = Transaction.objects.all().filter(txOwner_id=user.id).order_by('project_id').order_by('date')
+        transaction = Transaction.objects.all().filter(owner_id=user.id).order_by('date')
 
         return render(request = request,template_name = "member.html",context={'member':member, 'transaction_list':transaction})
 
@@ -183,7 +183,7 @@ def committeeAddView(request,pk):
             return render(request = request,template_name = "committee.html",context={"form":form,'project':project})
         else:
             error={'message':user.first_name+" is not a committee member of "+project.name}
-            return render(request,template_name='accessControl.html',context=error)
+            return render(request,template_name='accesscontrol.html',context=error)
  
     if request.method == 'POST':
         form = CommiteeForm(request.POST)
@@ -192,7 +192,7 @@ def committeeAddView(request,pk):
             obj.updatedBy = user
             obj.project = project
             obj.save()
-            committees = Commitee.objects.all().filter(project_id=pk)
+            committees = Commitee.objects.all().filter(project_id=pk).order_by('role__priority')
             context ={
                 'committee_list':committees,
                 'project':project,
@@ -206,7 +206,7 @@ def committeeAddView(request,pk):
 @login_required
 def committeeListView(request,pk):
     if request.method == 'GET':
-        committees = Commitee.objects.all().filter(project_id=pk)
+        committees = Commitee.objects.all().filter(project_id=pk).order_by('role__priority')
         project = Project.objects.get(id=pk)
         user = User.objects.get(id=request.user.id)
         userRole=project.getUserRole(user)
@@ -229,9 +229,9 @@ def committeeDelView(request,pk):
     committee = Commitee.objects.get(id=pk)
     project = Project.objects.get(id=committee.project_id)
     committee.delete()        
-    committeeList = Commitee.objects.all().filter(project_id=project.id)
+    committeeList = Commitee.objects.all().filter(project_id=project.id).order_by('role__priority')
     
-    return render(request = request,template_name = "committee_list.html",context={'committee_list':committeeList,'project':project})
+    return render(request = request,template_name = "committee_list.html",context={'committee_list':committeeList,'project':project, 'userRole':'EDIT'})
 
 #Minutes
 @login_required
@@ -245,7 +245,7 @@ def minuteAddView(request,pk):
             return render(request = request,template_name = "minute.html",context={"form":form,'project':project})
         else:
             error={'message':user.first_name+" is not a committee member of "+project.name}
-            return render(request,template_name='accessControl.html',context=error)
+            return render(request,template_name='accesscontrol.html',context=error)
     
     if request.method == 'POST':
         form = MinuteForm(request.POST)
@@ -335,8 +335,10 @@ def minuteDelView(request,pk):
 def transactionListView(request, pk):
     prj = Project.objects.all().filter(id=pk).first()
     user = User.objects.get(id=request.user.id)
+    
     if request.method == 'GET':
-        transactions = Transaction.objects.all().filter(project_id=prj.id)
+
+        transactions = Transaction.objects.filter(bank__project__id=pk)
         userRole = prj.getUserRole(user)
         context={'project':prj, 'transaction_list':transactions, 'userRole':userRole}
         return render(request = request,template_name = "transaction_list.html",context=context)
@@ -360,7 +362,6 @@ def transactionAddView(request,pk):
             try:
                 obj=form.save(commit=False)
                 obj.updatedBy = user
-                obj.project = prj
                 obj.save()
 
                 if obj.receipt:
@@ -386,18 +387,19 @@ def transactionAddView(request,pk):
 def transactionUpdView(request,pk):
     user = User.objects.get(id=request.user.id)
     tx = Transaction.objects.get(id=pk)  
-    project = Project.objects.get(id=tx.project_id)
-    
+    bank = BankAccount.objects.get(id=tx.bank_id)
+    project = Project.objects.get(id = bank.project_id)
+
     if request.method == 'GET':
         form  = TransactionForm(instance = tx)
-        return render(request,template_name='transaction.html',context={'form':form})
+        return render(request,template_name='common_form.html',context={'form':form, 'form_name':"Transaction "})
 
     if request.method == 'POST':
         form = TransactionForm(request.POST, request.FILES)
         if form.is_valid():
             obj=form.save(commit=False)
             obj.updatedBy = user
-            obj.project = project
+            obj.project = bank
             obj.id = tx.id
             obj.save()
 
@@ -415,7 +417,7 @@ def transactionUpdView(request,pk):
             error={'message':'Error in Data input to Minutes'}
             return render(request,template_name='error.html',context=error)
 
-    txs = Transaction.objects.all().filter(project_id=tx.project_id)
+    txs = Transaction.objects.all().filter(bank__project__id=project.id)
     context ={
         'transaction_list':txs,
         'project':project,
@@ -426,7 +428,7 @@ def transactionUpdView(request,pk):
 @login_required
 def transactionDelView(request,pk):
     tx = Transaction.objects.filter(id=pk).first()
-    pid=tx.project_id
+    pid=tx.bank.project_id
     tx.delete()
     transactions = Transaction.objects.all().filter(project_id = pid)
     prj = Project.objects.get(id=pid)
@@ -447,8 +449,8 @@ def transactionUserView(request,pk):
         else:
             tx = Transaction.objects.get(id=pk)
             form = TransactionUserForm(instance=tx)
-
-        return render(request = request,template_name = "transaction.html",context={"form":form})
+        form_name=""
+        return render(request = request,template_name = "common_form.html",context={"form":form, 'form_name':"Transaction"})
         
     if request.method == 'POST':
         form = TransactionUserForm(request.POST,request.FILES)
@@ -457,7 +459,7 @@ def transactionUserView(request,pk):
             try:
                 obj=form.save(commit=False)
                 obj.updatedBy = user
-                obj.txOwner = user
+                obj.owner_id = user.id
                 obj.save()
 
                 if obj.receipt:
@@ -471,9 +473,9 @@ def transactionUserView(request,pk):
                     obj.photo.name = "transaction/"+today.strftime("%Y")+"/"+nfname
                     obj.save(update_fields=['receipt'])
 
-                return render(request,template_name="transaction_success.html",context={'transaction':obj,'project':obj.project})
+                return render(request,template_name="transaction_success.html",context={'transaction':obj,'project':obj.bank.project})
             except IntegrityError as e:
-                error={'message':'Could not save to database'}
+                error={'message':'Error'+";".join(e.messages)}
                 return render(request,template_name='error.html',context=error)
         else:
             error={'message':'Error'}
@@ -482,8 +484,7 @@ def transactionUserView(request,pk):
 def transactionSummary(request,pk):
     labels = []
     data = []
-
-    queryset = Transaction.objects.all().filter(project_id=pk).values('exType').annotate(total=Sum('amount')).order_by('-exType')
+    queryset = Transaction.objects.all().filter(bank__project__id = pk).values('exType').annotate(total=Sum('amount')).order_by('-exType')
 
     for entry in queryset:
         exp = ExpenseType.objects.get(id=entry['exType'])
@@ -494,6 +495,109 @@ def transactionSummary(request,pk):
         'labels': labels,
         'data': data,
     })
+
+def bankAccountSummary(request,pk):
+    labels = []
+    data = []
+    print("bak account summary")
+    queryset = Transaction.objects.all().filter(bank__project__id = pk).filter(txType=Transaction.TxType_DEPOSIT).values('bank_id').annotate(total=Sum('amount'))
+
+    for entry in queryset:
+        withdraw = Transaction.objects.all().filter(bank_id =entry['bank_id']).filter(txType=Transaction.TxType_WITHDRWAL).values('bank_id').annotate(total=Sum('amount'))
+        if withdraw.count()==0:
+            w = 0
+        else:
+            w = withdraw.first()['total']
+
+        bank = BankAccount.objects.get(id=entry['bank_id'])
+        labels.append(bank.name)
+        balance = entry['total'] - w
+        data.append(balance)
+    
+    return JsonResponse(data={
+        'labels': labels,
+        'data': data,
+    })
+
+@login_required
+def bankAccountAddView(request,pk):
+    return bankAccountUpdView(request,pk,'x')
+
+@login_required
+def bankAccountUpdView(request,pk,bk):
+    user = User.objects.get(id=request.user.id)
+    prj = Project.objects.get(id=pk)
+
+    if request.method == 'GET':
+        if bk=='x':
+            form = BankAccountForm()
+            bank = BankAccount()
+        else:
+            bank = BankAccount.objects.get(id=bk) 
+
+        form  = BankAccountForm(instance = bank)
+        form_name="Bank Account for "+prj.name  
+        return render(request,template_name='common_form.html',context={'form':form, 'form_name':form_name})
+
+    if request.method == 'POST':
+        form = BankAccountForm(request.POST)
+        if form.is_valid():
+            obj=form.save(commit=False)
+            obj.updatedBy_id = user.id
+            obj.project = prj
+            obj.save()
+        else:
+            error={'message':'Error in Data input to Minutes'}
+            return render(request,template_name='error.html',context=error)
+
+        accounts = BankAccount.objects.all().filter(project_id=pk)
+        context ={
+            'bank_list':accounts,
+            'project':prj,
+            'userRole':UserRole.EDIT
+        }
+        return render(request,template_name="bank_list.html",context=context)
+
+@login_required
+def bankAccountDelView(request,pk,bk):
+    prj = Project.objects.get(id=pk)
+    tx = BankAccount.objects.filter(id=bk).first()
+    tx.delete()
+    banks = BankAccount.objects.all().filter(project_id=pk)
+    context ={
+            'bank_list':banks,
+            'project':prj,
+            'userRole':UserRole.EDIT
+    }
+    return render(request,template_name="bank_list.html",context=context)
+
+@login_required
+def bankAccountListView(request, pk):
+    prj = Project.objects.all().filter(id=pk).first()
+    user = User.objects.get(id=request.user.id)
+    if request.method == 'GET':
+        banks = BankAccount.objects.all().filter(project_id=prj.id)
+        userRole = prj.getUserRole(user)
+        context={'project':prj, 'bank_list':banks, 'userRole':userRole}
+        return render(request = request,template_name = "bank_list.html",context=context)
+
+@login_required
+def otherPrjListView(request):
+    if request.method == 'GET':
+        projects = Project.objects.all().exclude(id__in=[1,2])
+        for prj in projects:
+            txs = Transaction.objects.all().filter(bank__project__id=prj.id)
+            raised = txs.filter(txType='DEPOSIT').aggregate(total=Sum('amount'))['total']
+            cnt = txs.filter(txType='DEPOSIT').aggregate(cnt=Count('owner'))['cnt']
+            spent = txs.filter(txType='WITHDRAWAL').aggregate(total=Sum('amount'))['total']
+            prj.raisedFund=raised
+            prj.spentFund =spent
+            prj.participants=cnt
+            prj.save(update_fields=['raisedFund', 'spentFund','participants'])
+        
+        projects = Project.objects.all().exclude(id__in=[1,2])
+        context={'project_list':projects}
+        return render(request = request,template_name = "otherprj_list.html",context=context)
 
 @login_required
 def financialReport(request, pk):

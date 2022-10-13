@@ -9,7 +9,6 @@ class UserRole:
     VIEW='VIEW'
     NONE='NONE'
     
-
 class Member(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     mobile = models.TextField(max_length=12, blank=True)
@@ -19,7 +18,7 @@ class Member(models.Model):
     photo = models.ImageField(upload_to='profile/',blank=True, null=True)
 
     def __str__(self):
-        return "%s " % (self.user.first_name) 
+        return "%s % " % (self.user.first_name, self.user.last_name) 
 
 @receiver(post_save, sender=User)
 def create_user_member(sender, instance, created, **kwargs):
@@ -37,10 +36,10 @@ class ProjectType(models.Model):
         return "%s " % (self.description) 
 
 class Project(models.Model):
-    NOT_STARTED = 'NS'
-    IN_PROGRESS = 'PR'
-    COMPLETED   = 'CP'
-    CANCELLED   = 'CX'
+    NOT_STARTED = 'NotStarted'
+    IN_PROGRESS = 'InProgress'
+    COMPLETED   = 'Completed'
+    CANCELLED   = 'Cancelled'
     PROJ_STATUS = [
             (NOT_STARTED,'Not Started'),
             (IN_PROGRESS,'In Progress'),
@@ -50,12 +49,13 @@ class Project(models.Model):
     
     name = models.CharField(max_length=64)
     purpose = models.TextField(max_length=2000, blank=True)
-    status = models.CharField(max_length=3,choices=PROJ_STATUS,default=NOT_STARTED)
+    status = models.CharField(max_length=10,choices=PROJ_STATUS,default=NOT_STARTED)
     startDate = models.DateField(default=timezone.now)
     endDate = models.DateField(null=True, blank=True)
-    currentFund = models.IntegerField(null=True)
-    futureFund = models.IntegerField(null=True)
+    raisedFund = models.IntegerField(null=True)
+    spentFund = models.IntegerField(null=True)
     targetFund = models.IntegerField(null=True)
+    participants = models.IntegerField(null=True,default=0)
     updatedBy = models.ForeignKey(User,on_delete=models.CASCADE)
     updatedOn = models.DateTimeField(default=timezone.now)
     prjType = models.ForeignKey(ProjectType, on_delete=models.CASCADE)
@@ -79,21 +79,22 @@ class Project(models.Model):
 
 class Role(models.Model):
     title = models.CharField(max_length=64, blank=False, help_text="name")
+    priority = models.SmallIntegerField()
     
     def __str__(self):
         return "%s " % (self.title) 
 
 class Commitee(models.Model):
-    CURRENT = 'CR'
-    PAST    = 'PS'
+    CURRENT = 'Current'
+    PAST    = 'Past'
     COMMITEE_STATUS = [
             (CURRENT,'Current'),
             (PAST,'Past'),
     ]
     project=models.ForeignKey(Project, on_delete=models.CASCADE)
-    member=models.ForeignKey(Member, on_delete=models.CASCADE)
+    member=models.ForeignKey(User, related_name='commitee_member', on_delete=models.CASCADE)
     role = models.ForeignKey(Role, on_delete=models.CASCADE)
-    status = models.CharField(max_length=2,choices=COMMITEE_STATUS,default=CURRENT)
+    status = models.CharField(max_length=7,choices=COMMITEE_STATUS,default=CURRENT)
     startDate = models.DateField(default=timezone.now)
     endDate = models.DateField(null=True, blank=True)
     updatedBy = models.ForeignKey(User,on_delete=models.CASCADE)
@@ -116,16 +117,41 @@ class ExpenseType(models.Model):
     def __str__(self):
         return "%s " % (self.expense)
 
-TXTYPE =[
-    ('DEPOSIT','Deposit'),
-    ('WITHDRAWAL','Withdraw'),
-    ('INCOME','Interest'),
-    ('FEES','fees'),
-]       
+     
+
+class BankAccount(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    holder = models.ForeignKey(User,related_name='holder', on_delete=models.CASCADE)
+    name = models.CharField(max_length=32)
+    purpose = models.CharField(max_length=128,null=True,blank=True)
+    bank = models.CharField(max_length=32)
+    accNumber = models.CharField(max_length=32)
+    branch = models.CharField(max_length=128)
+    routing = models.CharField(max_length=128)
+    telno = models.CharField(max_length=12, null=True, blank=True)
+    email = models.CharField(max_length=32,null=True, blank=True)
+    balance = models.DecimalField(max_digits=12,decimal_places=2,default=0.0)  
+    updatedBy = models.ForeignKey(User,on_delete=models.CASCADE)
+    updatedOn = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return "%s - %s" % (self.project.name,self.name)
 
 class Transaction(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    txOwner = models.ForeignKey(User, related_name='txOwner', on_delete=models.CASCADE)
+    TxType_DEPOSIT='DEPOSIT'
+    TxType_WITHDRWAL='WITHDRAWAL'
+    TxType_INCOME='INTEREST'
+    TxType_FEES = 'FEES'
+
+    TXTYPE =[
+        (TxType_DEPOSIT,'Deposit'),
+        (TxType_WITHDRWAL,'Withdraw'),
+        (TxType_INCOME,'Interest'),
+        (TxType_FEES,'fees'),
+    ]
+
+    bank = models.ForeignKey(BankAccount, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, related_name='Owner', on_delete=models.CASCADE)
     txType  = models.CharField(max_length=10,choices=TXTYPE)
     exType  = models.ForeignKey(ExpenseType, on_delete=models.CASCADE)
     remarks =models.CharField(max_length=100,blank=True,null=True)
@@ -134,3 +160,5 @@ class Transaction(models.Model):
     receipt = models.FileField(upload_to='transaction/%Y',null=True,blank=True)
     updatedBy = models.ForeignKey(User,on_delete=models.CASCADE)
     updatedOn = models.DateTimeField(default=timezone.now)
+
+

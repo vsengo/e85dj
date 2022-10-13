@@ -4,7 +4,9 @@ from django.urls import path,re_path,include
 from .views import  SignUpView, logOff, logIn, memberView, projectAddView,projectListView,projectDelView,ProjectUpd, change_password
 from .views import committeeAddView, CommitteeUpd, committeeDelView,committeeListView, minuteAddView, minuteDelView, minuteListView, minuteUpdView
 from .views import transactionAddView, transactionDelView, transactionListView, transactionSummary, transactionUpdView, financialReport, memberUpdView
-from .views import transactionUserView, transactionUserAddView
+from .views import transactionUserView, transactionUserAddView, bankAccountListView, bankAccountAddView, bankAccountDelView, bankAccountUpdView, otherPrjListView
+from .views import bankAccountSummary
+
 
 urlpatterns = [
     re_path(r'signup', SignUpView.as_view(), name='signup'),
@@ -13,10 +15,17 @@ urlpatterns = [
     re_path(r'^member', memberView, name='member'),
     re_path(r'^updateMember', memberUpdView, name='updateMember'),
 
+    re_path(r'otherprjList', otherPrjListView, name='otherprjList'),
     re_path(r'projectList', projectListView, name='projectList'),
     re_path(r'projectAdd', projectAddView, name='projectAdd'),
     re_path(r'projectDel(?P<pk>\d+)', projectDelView, name='projectDel'),
     re_path(r'projectUpd(?P<pk>\d+)', ProjectUpd.as_view(), name='projectUpd'),
+
+    
+    re_path(r'bankAccountList(?P<pk>\d+)', bankAccountListView, name='bankAccountList'),
+    re_path(r'bankAccountAdd/(?P<pk>\d+)', bankAccountAddView, name='bankAccountAdd'),
+    re_path(r'bankAccountDel(?P<pk>\d+)/(?P<bk>\d+)', bankAccountDelView, name='bankAccountDel'),
+    re_path(r'bankAccountUpd(?P<pk>\d+)/(?P<bk>\d+)', bankAccountUpdView, name='bankAccountUpd'),
 
     re_path(r'transactionList(?P<pk>\d+)', transactionListView, name='transactionList'),
     re_path(r'transactionAdd(?P<pk>\d+)', transactionAddView, name='transactionAdd'),
@@ -28,7 +37,8 @@ urlpatterns = [
 
     re_path(r'financialReport(?P<pk>\d+)', financialReport, name='financialReport'),
     re_path(r'transactionSummary(?P<pk>\d+)',transactionSummary, name='transactionSummary'),
-    
+    re_path(r'bankAccountSummary(?P<pk>\d+)',bankAccountSummary, name='bankAccountSummary'),
+
     re_path(r'committeeList(?P<pk>\d+)', committeeListView, name='committeeList'),
     re_path(r'committeeAdd(?P<pk>\d+)', committeeAddView, name='committeeAdd'),
     re_path(r'committeeDel(?P<pk>\d+)', committeeDelView, name='committeeDel'),

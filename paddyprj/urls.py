@@ -8,9 +8,9 @@ urlpatterns = [
     re_path(r'information', TemplateView.as_view(template_name='information.html'), name='information'),
     re_path(r'status', statusView, name='status'),
     
-    re_path(r'projectList', projectListView, name='projectList'),
-    re_path(r'projectDel(?P<pk>\d+)', projectDelView, name='projectDel'),
-    re_path(r'projectUpd(?P<pk>\d+)', ProjectUpd.as_view(), name='projectUpd'),
+    re_path(r'prjtList', projectListView, name='prjList'),
+    re_path(r'prjtDel(?P<pk>\d+)', projectDelView, name='prjDel'),
+    re_path(r'prjtUpd(?P<pk>\d+)', ProjectUpd.as_view(), name='prjUpd'),
     
     re_path(r'investorAdd(?P<pk>\d+)',   investorAddView, name='investorAdd'),
     re_path(r'investorList(?P<pk>\d+)', investorListView, name='investorList'),
