@@ -3,15 +3,15 @@
 
 {% block content %}
 <div class="container-fluid">
-    <div class="row text-center justify-content-center">
+    <div class="row text-left justify-content-left">
     <div class="card-header justify-center">
         <h5>{{prj.project.name}}</h5>
-        <p>{{prj.title}}</p>
-        <p>{{prj.updatedOn}} : Comments ({{ prj.comments }}) Likes:({{prj.likes}})</p>
+        <p>{{prj.title}}
+        <i>{{prj.updatedOn}} : Comments ({{ prj.comments }}) Likes:({{prj.likes}})</i>
     </div>
     <div class="card-body text-left justify-content-left">
         {% for comment in comment_list %}
-        <div class="alert alert-info justify-content-left">
+        <div class="alert alert-warning justify-content-left">
             <strong>{{comment.updatedOn}} {{comment.updatedBy.first_name}} :</strong> {{comment.body|linebreaks}}
         </div>
         {% endfor %}
