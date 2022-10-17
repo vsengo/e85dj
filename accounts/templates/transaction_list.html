@@ -7,7 +7,7 @@
             <div class="card-header">
                 <div class="row">
                     <div class="col-md-6">
-                        <strong>Project Name :{{project.name}}</strong> 
+                        <strong>Project :{{project.name}}</strong> 
                     </div>
                     <div class="col-md-6">
                         {% if userRole == 'EDIT' %}
@@ -23,16 +23,14 @@
                             <thead>
                                 <tr>
                                     <th scope="col">#</th>
-                                    <th scope="col">Name</th>
                                     <th scope="col">Account</th>
-                                    <th scope="col">Project</th>
                                     <th scope="col">Action</th>
                                     <th scope="col">Expense</th>
                                     <th scope="col">Amount</th>
                                     <th scope="col">Date</th>
                                     <th scope="col">Remarks</th>
-                                    <th scope="col">Receipt</th>
                                     {% if userRole == 'EDIT' %}
+                                    <th scope="col">Name</th>
                                     <th scope="col">Update </th>
                                     <th scope="col">Delete </th>
                                     {% endif %} 
@@ -42,24 +40,36 @@
                                {% for tx in transaction_list %}
                                 <tr>
                                     <th scope=""row">{{forloop.counter}}</th>
-                                    <td>{{tx.owner.first_name}} {{tx.owner.last_name}}</td>
                                     <td>{{tx.bank.name}}</td>
-                                    <td>{{tx.bank.project.name}}</td>
                                     <td>{{tx.txType}} </td>
                                     <td>{{tx.exType}} </td>
                                     <td>{{tx.amount}} </td>
                                     <td>{{tx.date}}</td>
                                     <td>{{tx.remarks}}</td>
-                                    <td>
-                                        {% if tx.receipt %}
-                                            <li><a href="{{ tx.receipt.url}}">Receipt</a></li>
-                                        {% else %}
-                                            No Receipt
-                                        {% endif %}
-                                    </td>
                                     {% if userRole == 'EDIT' %}
-                                    <td><a href="{% url 'accounts:transactionUpd' tx.id %}">Edit</a></td>
-                                    <td><a href="{% url 'accounts:transactionDel' tx.id %}">Delete</a></td>
+                                    <td>{{tx.owner.first_name}} {{tx.owner.last_name}}</td>
+                                    <td><a href="{% url 'accounts:transactionUpd' tx.id %}" class="btn btn-danger btn-md">Edit</a></td>
+                                    <td>
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#deleteUserModal">
+                                            Delete
+                                        </button>
+                                    </td>
+                                        <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                              <div class="modal-content">
+                                                <div class="modal-header">
+                                                  <h5 class="modal-title" id="exampleModalLabel">Confirm Removal!</h5>
+                                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                 Please Confirm you want to remove this transaction
+                                                </div>
+                                                <div class="modal-footer">
+                                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                  <a href="{% url 'accounts:transactionDel' tx.id %}" class="btn btn-danger btn-md">Delete</a>
+                                              </div>
+                                            </div>
+                                        </div>
                                     {% endif %} 
                                 </tr>
                                 {% endfor %}

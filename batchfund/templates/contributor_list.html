@@ -18,11 +18,11 @@
                             <thead>
                                 <tr>
                                     <th scope="col">#</th>
-                                    <th scope="col">Name</th>
                                     <th scope="col">Amount</th>
                                     <th scope="col">Frequency</th>
                                     <th scope="col">Start Date</th>
                                     {% if userRole == 'EDIT' %}
+                                    <th scope="col">Name</th>
                                     <th scope="col">Update </th>
                                     <th scope="col">Delete </th>
                                     {% endif %} 
@@ -32,11 +32,11 @@
                                {% for cx in contributor_list %}
                                 <tr>
                                     <th scope=""row">{{forloop.counter}}</th>
-                                    <td>{{cx.user.first_name}} {{cx.user.last_name}}</td>
                                     <td>{{cx.currency}} {{cx.amount}} </td>
                                     <td>{{cx.frequency}} </td>
                                     <td>{{cx.startDate}}</td>
                                     {% if userRole == 'EDIT' %}
+                                    <td>{{cx.user.first_name}} {{cx.user.last_name}}</td>
                                     <td><a href="{% url 'batchfund:contributorUpd' cx.id %}">Edit</a></td>
                                     <td><a href="{% url 'batchfund:contributorDel' cx.id %}">Delete</a></td>
                                     {% endif %} 

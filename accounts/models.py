@@ -11,10 +11,10 @@ class UserRole:
     
 class Member(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    mobile = models.TextField(max_length=12, blank=True)
-    city = models.CharField(max_length=30, blank=True)
+    mobile = models.TextField(max_length=12, null=True, blank=True)
+    city = models.CharField(max_length=30, null=True, blank=True)
     dob = models.DateField(null=True, blank=True)
-    country = models.CharField(max_length=30, blank=True)    
+    country = models.CharField(max_length=30, null=True, blank=True)    
     photo = models.ImageField(upload_to='profile/',blank=True, null=True)
 
     def __str__(self):
@@ -56,9 +56,9 @@ class Project(models.Model):
     spentFund = models.IntegerField(null=True)
     targetFund = models.IntegerField(null=True)
     participants = models.IntegerField(null=True,default=0)
-    updatedBy = models.ForeignKey(User,on_delete=models.CASCADE)
+    updatedBy = models.ForeignKey(User,on_delete=models.PROTECT)
     updatedOn = models.DateTimeField(default=timezone.now)
-    prjType = models.ForeignKey(ProjectType, on_delete=models.CASCADE)
+    prjType = models.ForeignKey(ProjectType, on_delete=models.PROTECT)
 
     def isCommiteeMember(self, user):
         member= Member.objects.get(user_id=user.id)
@@ -97,7 +97,7 @@ class Commitee(models.Model):
     status = models.CharField(max_length=7,choices=COMMITEE_STATUS,default=CURRENT)
     startDate = models.DateField(default=timezone.now)
     endDate = models.DateField(null=True, blank=True)
-    updatedBy = models.ForeignKey(User,on_delete=models.CASCADE)
+    updatedBy = models.ForeignKey(User,on_delete=models.PROTECT)
     updatedOn = models.DateTimeField(default=timezone.now)
 
 class Minute(models.Model):
@@ -107,7 +107,7 @@ class Minute(models.Model):
     resolution = models.CharField(max_length=1000)
     todos      = models.CharField(max_length=1000)
     date = models.DateField(null=True, blank=True)
-    updatedBy = models.ForeignKey(User,on_delete=models.CASCADE)
+    updatedBy = models.ForeignKey(User,on_delete=models.PROTECT)
     updatedOn = models.DateTimeField(default=timezone.now)
 
 class ExpenseType(models.Model):
@@ -121,7 +121,7 @@ class ExpenseType(models.Model):
 
 class BankAccount(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    holder = models.ForeignKey(User,related_name='holder', on_delete=models.CASCADE)
+    holder = models.ForeignKey(User,related_name='holder', on_delete=models.PROTECT)
     name = models.CharField(max_length=32)
     purpose = models.CharField(max_length=128,null=True,blank=True)
     bank = models.CharField(max_length=32)
@@ -151,14 +151,14 @@ class Transaction(models.Model):
     ]
 
     bank = models.ForeignKey(BankAccount, on_delete=models.CASCADE)
-    owner = models.ForeignKey(User, related_name='Owner', on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, related_name='Owner', on_delete=models.PROTECT)
     txType  = models.CharField(max_length=10,choices=TXTYPE)
     exType  = models.ForeignKey(ExpenseType, on_delete=models.CASCADE)
     remarks =models.CharField(max_length=100,blank=True,null=True)
     amount  = models.IntegerField()
     date    = models.DateField(default=timezone.now)
     receipt = models.FileField(upload_to='transaction/%Y',null=True,blank=True)
-    updatedBy = models.ForeignKey(User,on_delete=models.CASCADE)
+    updatedBy = models.ForeignKey(User,on_delete=models.PROTECT)
     updatedOn = models.DateTimeField(default=timezone.now)
 
 

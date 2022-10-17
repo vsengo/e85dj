@@ -1,11 +1,11 @@
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import path,re_path,include
-from .views import  SignUpView, logOff, logIn, memberView, projectAddView,projectListView,projectDelView,ProjectUpd, change_password
+from .views import  SignUpView, deleteMember, logOff, logIn, memberView, projectAddView,projectListView,projectDelView,ProjectUpd, change_password
 from .views import committeeAddView, CommitteeUpd, committeeDelView,committeeListView, minuteAddView, minuteDelView, minuteListView, minuteUpdView
 from .views import transactionAddView, transactionDelView, transactionListView, transactionSummary, transactionUpdView, financialReport, memberUpdView
 from .views import transactionUserView, transactionUserAddView, bankAccountListView, bankAccountAddView, bankAccountDelView, bankAccountUpdView, otherPrjListView
-from .views import bankAccountSummary
+from .views import bankAccountSummary, deleteMember
 
 
 urlpatterns = [
@@ -14,6 +14,7 @@ urlpatterns = [
     re_path(r'login', logIn, name='login'),
     re_path(r'^member', memberView, name='member'),
     re_path(r'^updateMember', memberUpdView, name='updateMember'),
+    re_path(r'^deleteMember', deleteMember, name='deleteMember'),
 
     re_path(r'otherprjList', otherPrjListView, name='otherprjList'),
     re_path(r'projectList', projectListView, name='projectList'),

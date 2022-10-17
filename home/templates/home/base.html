@@ -32,19 +32,19 @@
      
               <li class="nav-item">
                 <div class="dropdown dropdown">
-                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">Batch</a>                    
+                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">Fund</a>                    
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href={% url 'batchfund:constitution' %}>Constitution</a></li>
                         <!-- <li><a class="dropdown-item" href={% url 'batchfund:contributorAdd' 1%}>Contribute</a></li> -->
                         {% if user.is_authenticated %}
                         <hr>
                         <li><a class="dropdown-item disabled" href=# style="color:#ba0015">Member Only</a></li>
-                        <li><a class="dropdown-item" href={% url 'accounts:minuteList' 1 %}>Meeting Minutes</a></li>
-                        <li><a class="dropdown-item" href={% url 'batchfund:report' 1 %}>Report</a></li>       
+                        <li><a class="dropdown-item" href={% url 'accounts:minuteList' 7 %}>Meeting Minutes</a></li>
+                        <li><a class="dropdown-item" href={% url 'batchfund:report' 7 %}>Report</a></li>       
                         <hr>
                         <li><a class="dropdown-item disabled" href=# style="color:#ba0015">Committee Only</a></li>
-                        <li><a class="dropdown-item" href={% url 'accounts:transactionList' 1%}>Transactions</a></li>
-                        <li><a class="dropdown-item" href={% url 'batchfund:contributorList' 1%}>Contributors</a></li>
+                        <li><a class="dropdown-item" href={% url 'accounts:transactionList' 7%}>Transactions</a></li>
+                        <li><a class="dropdown-item" href={% url 'batchfund:contributorList' 7%}>Contributors</a></li>
                         {% endif %}                      
                     </ul>
                 </div>
@@ -61,13 +61,13 @@
                       {% if user.is_authenticated %}
                       <hr>
                       <li><a class="dropdown-item disabled" href=# style="color:#ba0015">Investor Only</a></li>
-                      <li><a class="dropdown-item" href={% url 'accounts:minuteList' 2 %}>Meeting Minutes</a></li>
-                      <li><a class="dropdown-item" href={% url 'accounts:financialReport' 2 %}>Financial Report</a></li>
+                      <li><a class="dropdown-item" href={% url 'accounts:minuteList' 8 %}>Meeting Minutes</a></li>
+                      <li><a class="dropdown-item" href={% url 'accounts:financialReport' 8 %}>Financial Report</a></li>
                       <hr>
                       <li><a class="dropdown-item disabled" href=# style="color:#ba0015">Committee Only</a></li>
-                      <li><a class="dropdown-item" href={% url 'paddyprj:prjStatusList' 2 %}>Update Status</a></li>
-                      <li><a class="dropdown-item" href={% url 'accounts:transactionList' 2 %}>Transactions</a></li>
-                      <li><a class="dropdown-item" href={% url 'paddyprj:investorList' 2 %}>Investors</a></li>
+                      <li><a class="dropdown-item" href={% url 'paddyprj:prjStatusList' 8 %}>Update Status</a></li>
+                      <li><a class="dropdown-item" href={% url 'accounts:transactionList' 8 %}>Transactions</a></li>
+                      <li><a class="dropdown-item" href={% url 'paddyprj:investorList' 8 %}>Investors</a></li>
                       </li>
                       {% endif %}
                   </ul>
@@ -84,7 +84,7 @@
               <li class="nav-item">
                 <div class="dropdown">                        
                     {% if user.is_authenticated %}
-                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">{{user.first_name}} {{user.last_name}}</a> 
+                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">{{user.first_name}}   </a> 
                         <ul class="dropdown-menu"> 
                         <li><a class="dropdown-item" href={% url 'accounts:logoff' %}>Log Off</a></li>
                         <li><a class="dropdown-item" href={% url 'accounts:member' %}>Profile</a></li>

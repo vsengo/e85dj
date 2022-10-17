@@ -2,13 +2,6 @@
 {% block content %}
 {% load static %}
 {% load crispy_forms_tags %}
-<script>
-$(document).ready(function() {
-    $('[data-rel=popover]').popover({
-      html: true,
-      trigger: "hover"
-    });
-</script>
 
 <div class="container-fluid">
     <div class="card mt-2 mb-2">
@@ -29,11 +22,30 @@ $(document).ready(function() {
                     </div>
                     <div class="col-sm-3">
                         <a href="{% url 'accounts:change_password' %}" class="btn btn-secondary btn-md">Change Password</a> <br><br>
-                        <a href="{% url 'accounts:updateMember' %}" class="btn btn-secondary btn-md">Update Profile</a> 
+                        <a href="{% url 'accounts:updateMember' %}" class="btn btn-secondary btn-md">Update Profile</a> <br><br>
+
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#deleteUserModal">
+                            Remove Me.
+                        </button>
+                        <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h5 class="modal-title" id="exampleModalLabel">Confirm Removal!</h5>
+                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                 Please Confirm you want to remove your login from www.e85pera.net. <br>
+                                 All your data will be removed from Database!
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                  <a href="{% url 'accounts:deleteMember' %}" class="btn btn-danger btn-md">Please Remove Me</a> <br><br>
+                              </div>
+                            </div>
+                        </div>
                     </div>
             </div>
- 
-
         </div>
         <div class="card-body">
             <table class="table table-striped table-hover">

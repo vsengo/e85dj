@@ -9,6 +9,7 @@ from django.views import generic
 from django.views.generic import UpdateView
 from django.contrib  import messages
 from django.db import IntegrityError
+
 from django.db.models import Sum, Count
 from django.conf import settings
 from django.http import JsonResponse
@@ -41,9 +42,9 @@ def logIn(request):
                 #request.user = user
                 return  render(request = request,template_name = "home/index.html",context=c)
             else:
-                messages.error(request, "Invalid username or password.")
+                return render(request=request,template_name="error.html", context={'title':"Login ERROR", 'message':"User name <strong>"+username+"</strong> or Password is wrong"})
         else:
-            messages.error(request, "Invalid username or password.")
+            return render(request=request,template_name="error.html", context={'title':"Login ERROR", 'message':"User name or Password is wrong"})
 
     form = AuthenticationForm()
     return render(request = request,
@@ -68,14 +69,27 @@ def change_password(request):
     })
 
 @login_required
+def deleteMember(request):
+    member = Member.objects.get(user_id=request.user.id)
+    user = User.objects.get(id=request.user.id)
+    logout(request)
+    try:
+        user.delete()
+    except IntegrityError as e:
+        user.is_active=0
+        user.username=user.username+"DELETED"
+        user.save(update_fields=['is_active'])
+
+    return redirect('/')
+
+@login_required
 def memberView(request):
     member = Member.objects.get(user_id=request.user.id)
     user = User.objects.get(id=request.user.id)
-    
     if request.method == 'GET':
         transaction = Transaction.objects.all().filter(owner_id=user.id).order_by('date')
 
-        return render(request = request,template_name = "member.html",context={'member':member, 'transaction_list':transaction})
+    return render(request = request,template_name = "member.html",context={'member':member, 'transaction_list':transaction})
 
 @login_required
 def memberUpdView(request):
@@ -179,11 +193,11 @@ def committeeAddView(request,pk):
     user = User.objects.get(id=request.user.id)
     if request.method == 'GET':
         form = CommiteeForm()
-        if project.isCommiteeMember(user):
+        if project.isCommiteeMember(user) or user.is_staff:
             return render(request = request,template_name = "committee.html",context={"form":form,'project':project})
         else:
-            error={'message':user.first_name+" is not a committee member of "+project.name}
-            return render(request,template_name='accesscontrol.html',context=error)
+            error={'title':'Access Control', 'message':user.first_name+" is not a committee member of "+project.name}
+            return render(request,template_name='error.html',context=error)
  
     if request.method == 'POST':
         form = CommiteeForm(request.POST)
@@ -244,8 +258,8 @@ def minuteAddView(request,pk):
             form = MinuteForm()
             return render(request = request,template_name = "minute.html",context={"form":form,'project':project})
         else:
-            error={'message':user.first_name+" is not a committee member of "+project.name}
-            return render(request,template_name='accesscontrol.html',context=error)
+            error={'title':'Access Restriction', 'message':user.first_name+" is not a committee member of "+project.name}
+            return render(request,template_name='error.html',context=error)
     
     if request.method == 'POST':
         form = MinuteForm(request.POST)
@@ -352,8 +366,8 @@ def transactionAddView(request,pk):
             form = TransactionForm()
             return render(request = request,template_name = "transaction.html",context={"form":form,'project':prj})
         else:
-            error={'message':user.first_name+" is not a committee member of "+prj.name}
-            return render(request,template_name='accessControl.html',context=error)
+            error={'title':'Access Control',  'message':user.first_name+" is not a committee member of "+prj.name}
+            return render(request,template_name='error.html',context=error)
         
     if request.method == 'POST':
         form = TransactionForm(request.POST,request.FILES)
@@ -430,7 +444,7 @@ def transactionDelView(request,pk):
     tx = Transaction.objects.filter(id=pk).first()
     pid=tx.bank.project_id
     tx.delete()
-    transactions = Transaction.objects.all().filter(project_id = pid)
+    transactions = Transaction.objects.all().filter(bank__project__id = pid)
     prj = Project.objects.get(id=pid)
     project = Project.objects.get(id=prj.id)
     return  render(request,template_name="transaction_list.html",context={'transaction_list':transactions,'project':project})
