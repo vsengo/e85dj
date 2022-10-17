@@ -36,8 +36,8 @@
                             </div>
                          </div>
                     <div class="col-md-3 col-lg-3" align="right">
+                        <a href="{% url 'accounts:committeeList' project.id %}" class="btn btn-secondary btn-md"> Commmittee</a><br><br>
                         {% if user.is_staff %}
-                        <a href="{% url 'accounts:committeeList' project.id %}" class="btn btn-secondary btn-md">Manage Commmittee</a><br><br>
                         <a href="{% url 'accounts:bankAccountList' project.id %}" class="btn btn-secondary btn-md">Update Bank Accounts</a><br><br>
                         <a href="{% url 'accounts:projectUpd' project.id %}" class="btn btn-secondary btn-md">Update Project</a><br><br>
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#deleteUserModal">
