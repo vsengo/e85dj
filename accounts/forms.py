@@ -33,7 +33,7 @@ class MemberForm(forms.ModelForm):
     mobile =forms.CharField(label="Mobile Number (country) (number)")
     city = forms.CharField(label = "City")
     country = forms.CharField(label = "Country")
-    dob = forms.DateField(label = "Date of Birth",)
+    dob = forms.DateField(label = "Date of Birth(YYYY-MM-DD)",)
     widgets = {
             'dob': BootstrapDateTimePickerInput(format='%Y-%m-%d'), # specify date-frmat
         }
@@ -105,7 +105,7 @@ class TransactionForm(forms.ModelForm):
 
     class Meta:
         model = Transaction
-        fields = ['owner','bank','txType','exType','remarks','amount','date']
+        fields = ['owner','bank','txType','exType','remarks','amount','confirmed','date']
 
     def save(self, commit=True):
         data = super(TransactionForm, self).save(commit=False)

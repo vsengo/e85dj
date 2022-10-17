@@ -33,7 +33,7 @@ def contributorAddView(request,pk):
                 obj.project = prj
                 obj.save()
                 contributors = Contribution.objects.all().filter(project_id = prj.id)
-                userRole=prj.getUserRole(user)
+                userRole=prj.getUserRole(user,'Contributor')
                 ctx={'contributor_list':contributors,'project':prj, 'userRole':userRole}
 
                 return render(request,template_name="contributor_list.html",context=ctx)
@@ -51,7 +51,7 @@ def contributorListView(request, pk):
     
     if request.method == 'GET':
         contributors = Contribution.objects.all().filter(project_id=prj.id)
-        userRole = prj.getUserRole(user)
+        userRole = prj.getUserRole(user,'Contributor')
         form = ContributeForm()
         ctx={"form":form, 'project':prj, 'contributor_list':contributors, 'userRole':userRole}
         return render(request = request,template_name = "contributor_list.html",context=ctx)
@@ -79,7 +79,7 @@ def contributorUpdView(request,pk):
             return render(request,template_name='error.html',context=error)
 
     ctx = Contribution.objects.all().filter(project_id=project.id)
-    userRole = project.getUserRole(user)
+    userRole = project.getUserRole(user,'Contributor')
 
     context ={
         'contributor_list':ctx,
@@ -96,7 +96,7 @@ def contributorDelView(request,pk):
     contributors = Contribution.objects.all().filter(project_id = pid)
     prj = Project.objects.get(id=pid)
     user = User.objects.get(id=request.user.id)
-    userRole=prj.getUserRole(user)
+    userRole=prj.getUserRole(user,'Contributor')
     ctx={'contributor_list':contributors,'project':prj, 'userRole':userRole}
     return  render(request,template_name="contributor_list.html",context=ctx)
 

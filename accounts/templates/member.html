@@ -52,14 +52,13 @@
                 <thead>
                     <tr>
                         <th scope="col">#</th>
-                        <th scope="col">Name</th>
                         <th scope="col">Action</th>
                         <th scope="col">Expense</th>
                         <th scope="col">Project</th>
                         <th scope="col">Amount</th>
                         <th scope="col">Date</th>
+                        <th scope="col">Status</th>
                         <th scope="col">Remarks</th>
-                        <th scope="col">Receipt</th>
                         <th scope="col">Action</th>
                     </tr>
                 </thead>
@@ -67,20 +66,13 @@
                    {% for tx in transaction_list %}
                     <tr>
                         <td>{{forloop.counter}}</td>
-                        <td>{{tx.owner.first_name}} {{tx.owner.last_name}}</td>
                         <td>{{tx.txType}} </td>
                         <td>{{tx.exType}} </td>
                         <td>{{tx.bank.project.name}}</td>
                         <td>{{tx.amount}} </td>
                         <td>{{tx.date}}</td>
+                        <td>{{tx.confirmed}}</td>
                         <td>{{tx.remarks}}</td>
-                        <td>
-                            {% if tx.receipt %}
-                                <i><a href="{{ tx.receipt.url}}">Receipt</a></i>
-                            {% else %}
-                                No Receipt
-                            {% endif %}
-                        </td>
                         <td><a href="{% url 'accounts:transactionUserUpd' tx.id %}">Edit</a></td>
                     </tr>
                     {% endfor %}

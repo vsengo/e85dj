@@ -87,7 +87,7 @@ def memberView(request):
     member = Member.objects.get(user_id=request.user.id)
     user = User.objects.get(id=request.user.id)
     if request.method == 'GET':
-        transaction = Transaction.objects.all().filter(owner_id=user.id).order_by('date')
+        transaction = Transaction.objects.all().filter(owner_id=user.id).order_by('-date')
 
     return render(request = request,template_name = "member.html",context={'member':member, 'transaction_list':transaction})
 
@@ -165,6 +165,8 @@ def projectAddView(request):
 @login_required
 def projectListView(request):
     if request.method == 'GET':
+        user = User.objects.get(id=request.user.id)
+
         projects = Project.objects.all()
         return render(request = request,template_name = "project_list.html",context={'project_list':projects})
 
@@ -223,7 +225,7 @@ def committeeListView(request,pk):
         committees = Commitee.objects.all().filter(project_id=pk).order_by('role__priority')
         project = Project.objects.get(id=pk)
         user = User.objects.get(id=request.user.id)
-        userRole=project.getUserRole(user)
+        userRole=project.getUserRole(user,'Commitee')
 
         return render(request = request,template_name = "committee_list.html",context={'committee_list':committees, 'project':project, 'userRole':userRole})
 
@@ -281,13 +283,10 @@ def minuteAddView(request,pk):
 @login_required
 def minuteListView(request,pk):
     if request.method == 'GET':
-        minutes = Minute.objects.all().filter(project_id=pk)
+        minutes = Minute.objects.all().filter(project_id=pk).order_by('-date')
         user = User.objects.get(id=request.user.id)
         prj=Project.objects.get(id=pk)
-        userRole = UserRole.VIEW
-        if prj.isCommiteeMember(user):
-            userRole=UserRole.EDIT
-
+        userRole=prj.getUserRole(user,'Minute')
         return render(request = request,template_name = "minute_list.html",context={'minute_list':minutes, 'userRole':userRole, 'project':prj})
 
 class MinuteUpd(UpdateView):
@@ -323,7 +322,7 @@ def minuteUpdView(request,pk):
             error={'message':'Error in Data input to Minutes'}
             return render(request,template_name='error.html',context=error)
 
-    minutes = Minute.objects.all().filter(updatedBy=request.user.id)
+    minutes = Minute.objects.all().filter(updatedBy=request.user.id).order_by('-date')
     context ={
         'minute_list':minutes,
         'project':project,
@@ -336,9 +335,7 @@ def minuteDelView(request,pk):
     minute = Minute.objects.get(id=pk)
     user = User.objects.get(id=request.user.id)
     project=Project.objects.get(id=minute.project_id)
-    userRole = UserRole.VIEW   
-    if project.isCommiteeMember(user):
-        userRole=UserRole.EDIT
+    userRole=UserRole.EDIT
 
     minute.delete()     
     minuteList = Minute.objects.all().filter(project_id=project.id)
@@ -352,8 +349,8 @@ def transactionListView(request, pk):
     
     if request.method == 'GET':
 
-        transactions = Transaction.objects.filter(bank__project__id=pk)
-        userRole = prj.getUserRole(user)
+        transactions = Transaction.objects.filter(bank__project__id=pk).order_by('-date')
+        userRole = prj.getUserRole(user,'Transaction')
         context={'project':prj, 'transaction_list':transactions, 'userRole':userRole}
         return render(request = request,template_name = "transaction_list.html",context=context)
 
@@ -362,12 +359,10 @@ def transactionAddView(request,pk):
     user = User.objects.get(id=request.user.id)
     prj = Project.objects.get(id=pk)
     if request.method == 'GET':
-        if prj.isCommiteeMember(user):
-            form = TransactionForm()
-            return render(request = request,template_name = "transaction.html",context={"form":form,'project':prj})
-        else:
-            error={'title':'Access Control',  'message':user.first_name+" is not a committee member of "+prj.name}
-            return render(request,template_name='error.html',context=error)
+        form = TransactionForm()
+        form.fields['exType'].queryset = ExpenseType.objects.filter(prjType_id = prj.prjType.id)
+        form.fields['bank'].queryset = BankAccount.objects.filter(project_id=prj.id)
+        return render(request = request,template_name = "transaction.html",context={"form":form,'project':prj})
         
     if request.method == 'POST':
         form = TransactionForm(request.POST,request.FILES)
@@ -431,7 +426,7 @@ def transactionUpdView(request,pk):
             error={'message':'Error in Data input to Minutes'}
             return render(request,template_name='error.html',context=error)
 
-    txs = Transaction.objects.all().filter(bank__project__id=project.id)
+    txs = Transaction.objects.all().filter(bank__project__id=project.id).order_by('-date')
     context ={
         'transaction_list':txs,
         'project':project,
@@ -463,7 +458,6 @@ def transactionUserView(request,pk):
         else:
             tx = Transaction.objects.get(id=pk)
             form = TransactionUserForm(instance=tx)
-        form_name=""
         return render(request = request,template_name = "common_form.html",context={"form":form, 'form_name':"Transaction"})
         
     if request.method == 'POST':
@@ -484,10 +478,10 @@ def transactionUserView(request,pk):
                     nfname = today.strftime("%m%dT%H%M%S") + ext
                     npath = path.join(albumPath,nfname)
                     rename(opath,npath)
-                    obj.photo.name = "transaction/"+today.strftime("%Y")+"/"+nfname
+                    obj.receipt.name = "transaction/"+today.strftime("%Y")+"/"+nfname
                     obj.save(update_fields=['receipt'])
 
-                return render(request,template_name="transaction_success.html",context={'transaction':obj,'project':obj.bank.project})
+                return redirect('accounts:member') 
             except IntegrityError as e:
                 error={'message':'Error'+";".join(e.messages)}
                 return render(request,template_name='error.html',context=error)
@@ -591,7 +585,7 @@ def bankAccountListView(request, pk):
     user = User.objects.get(id=request.user.id)
     if request.method == 'GET':
         banks = BankAccount.objects.all().filter(project_id=prj.id)
-        userRole = prj.getUserRole(user)
+        userRole = prj.getUserRole(user,'BankAccount')
         context={'project':prj, 'bank_list':banks, 'userRole':userRole}
         return render(request = request,template_name = "bank_list.html",context=context)
 

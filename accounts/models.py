@@ -67,11 +67,16 @@ class Project(models.Model):
             return True
         return False
     
-    def getUserRole(self, user):
-        member= Member.objects.get(user_id=user.id)
-        committee = Commitee.objects.all().filter(project_id=self.id).filter(member_id = member.id)
-        if committee.exists():
+    def getUserRole(self, user, table):
+        member= User.objects.get(id=user.id)
+        committee = Commitee.objects.all().filter(project_id=self.id).filter(member_id = member.id).first()
+        if committee == None:
+            return UserRole.VIEW
+        
+        role = RoleEdit.objects.all().filter(role_id=committee.role_id).filter(canEdit=table)
+        if role.exists():
             return UserRole.EDIT
+
         return UserRole.VIEW
 
     def __str__(self):
@@ -83,6 +88,10 @@ class Role(models.Model):
     
     def __str__(self):
         return "%s " % (self.title) 
+
+class RoleEdit(models.Model):
+    role = models.ForeignKey(Role, on_delete=models.CASCADE)
+    canEdit = models.CharField (max_length=24)
 
 class Commitee(models.Model):
     CURRENT = 'Current'
@@ -102,11 +111,11 @@ class Commitee(models.Model):
 
 class Minute(models.Model):
     project=models.ForeignKey(Project, on_delete=models.CASCADE)
-    attendees=models.CharField(max_length=500)
-    discussion = models.CharField(max_length=2000)
-    resolution = models.CharField(max_length=1000)
-    todos      = models.CharField(max_length=1000)
-    date = models.DateField(null=True, blank=True)
+    attendees=models.TextField(max_length=500)
+    discussion = models.TextField(max_length=2000)
+    resolution = models.TextField(max_length=1000)
+    todos      = models.TextField(max_length=1000)
+    date = models.DateField(default=timezone.now)
     updatedBy = models.ForeignKey(User,on_delete=models.PROTECT)
     updatedOn = models.DateTimeField(default=timezone.now)
 
@@ -116,8 +125,6 @@ class ExpenseType(models.Model):
     
     def __str__(self):
         return "%s " % (self.expense)
-
-     
 
 class BankAccount(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
@@ -149,15 +156,20 @@ class Transaction(models.Model):
         (TxType_INCOME,'Interest'),
         (TxType_FEES,'fees'),
     ]
+    TXCONFIRM = [
+        ('Unconfirmed',"Unconfirmed"),
+        ('Confirmed',"Confirmed"),
+    ]
 
     bank = models.ForeignKey(BankAccount, on_delete=models.CASCADE)
     owner = models.ForeignKey(User, related_name='Owner', on_delete=models.PROTECT)
     txType  = models.CharField(max_length=10,choices=TXTYPE)
     exType  = models.ForeignKey(ExpenseType, on_delete=models.CASCADE)
-    remarks =models.CharField(max_length=100,blank=True,null=True)
+    remarks =models.TextField(max_length=100,blank=True,null=True)
     amount  = models.IntegerField()
     date    = models.DateField(default=timezone.now)
     receipt = models.FileField(upload_to='transaction/%Y',null=True,blank=True)
+    confirmed = models.CharField(max_length=16,choices=TXCONFIRM,default='UnConfirmed')
     updatedBy = models.ForeignKey(User,on_delete=models.PROTECT)
     updatedOn = models.DateTimeField(default=timezone.now)
 

@@ -41,7 +41,7 @@ class Investor(models.Model):
 class ProjectStatus(models.Model):
     project = models.ForeignKey(PaddyProject, on_delete=models.CASCADE)
     title = models.CharField(max_length=128)
-    content = models.CharField(max_length=2000)
+    content = models.TextField(max_length=2000)
     photo = models.ImageField(upload_to='paddyprj/%Y',blank=True, null=True)
     video = models.FileField(upload_to='paddyprj/%Y',blank=True, null=True)
     link = models.URLField(blank=True, null=True, help_text="Optional: any link to share")

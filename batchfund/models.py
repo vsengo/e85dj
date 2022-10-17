@@ -39,8 +39,9 @@ class Distribution(models.Model):
     def __str__(self):
         return self.get_frequency_display()
     project = models.ForeignKey(Project,on_delete=models.CASCADE)
+    purpose = models.TextField(max_length=500)
     requested = models.IntegerField()
-    committed = models.IntegerField()
+    committed = models.IntegerField(null=True)
     currency = models.CharField(max_length=3,choices=CURRENCY, default='Rs')
     distrDate = models.DateField(default=timezone.now)
     frequency = models.CharField(max_length=5,choices=FREQUENCY,default='Once')

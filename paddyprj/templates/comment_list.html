@@ -12,7 +12,7 @@
     <div class="card-body text-left justify-content-left">
         {% for comment in comment_list %}
         <div class="alert alert-info justify-content-left">
-            <strong>{{comment.updatedOn}} {{comment.updatedBy.first_name}} :</strong> {{comment.body}}
+            <strong>{{comment.updatedOn}} {{comment.updatedBy.first_name}} :</strong> {{comment.body|linebreaks}}
         </div>
         {% endfor %}
     </div>

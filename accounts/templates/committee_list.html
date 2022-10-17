@@ -20,7 +20,7 @@
                         <th scope="col">Status</th>
                         <th scope="col">Start Date</th>
                         <th scope="col">End Date</th>
-                        {% if userRole == 'EDIT' %}
+                        {% if user.is_staff %}
                         <th scope="col">Update </th>
                         <th scope="col">Delete </th>
                         {% endif %} 
@@ -34,8 +34,8 @@
                         <td>{{committee.role}} </td>
                         <td>{{committee.status}} </td>
                         <td>{{committee.startDate}} </td>
-                        <td>{{committee.endDate}}</td>
-                        {% if userRole == 'EDIT' %}
+                        <td>{{committee.endDate}} </td>
+                        {% if user.is_staff %}
                         <td><a href="{% url 'accounts:committeeUpd' committee.id %}" class="btn btn-danger btn-md">Edit</a></td>
                         <td>
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#deleteUserModal">

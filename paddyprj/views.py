@@ -72,7 +72,7 @@ def investorListView(request, pk):
     prj=Project.objects.get(id=pk)
     user = User.objects.get(id=request.user.id)
     if request.method == 'GET':
-        userRole=prj.getUserRole(user)
+        userRole=prj.getUserRole(user,'PaddyProject')
         paddy=PaddyProject.objects.get(project_id=prj.id)
         status_list = Investor.objects.all().filter(project_id=paddy.id)
         return render(request = request,template_name = "investor_list.html",context={'project':prj, 'status_list':status_list, 'userRole':userRole})
@@ -101,7 +101,7 @@ def investorUpdView(request,pk):
             return render(request,template_name='error.html',context=error)
 
     ctx = Investor.objects.all().filter(project_id=project.id)
-    userRole = project.getUserRole(user)
+    userRole = project.getUserRole(user,'Investor')
 
     context ={
         'investor_list':ctx,
@@ -119,7 +119,7 @@ def investorDelView(request,pk):
     ctx = Investor.objects.all().filter(project_id = pid)
     paddy = PaddyProject.objects.get(id=pid)
     project = Project.objects.get(id=paddy.project_id)
-    userRole=project.getUserRole(user)
+    userRole=project.getUserRole(user,'Investor')
 
     context ={
         'investor_list':ctx,
@@ -134,9 +134,9 @@ def prjStatusListView(request, pk):
     prj=Project.objects.get(id=pk)
     user = User.objects.get(id=request.user.id)
     if request.method == 'GET':
-        userRole=prj.getUserRole(user)
+        userRole=prj.getUserRole(user,'ProjectStatus')
         paddy=PaddyProject.objects.get(project_id=prj.id)
-        status_list = ProjectStatus.objects.all().filter(project_id=paddy.id)
+        status_list = ProjectStatus.objects.all().filter(project_id=paddy.id).order_by('-updatedOn')
         return render(request = request,template_name = "prjstatus_list.html",context={'project':prj, 'status_list':status_list, 'userRole':userRole})
 
 @login_required
@@ -229,12 +229,12 @@ def prjStatusDelView(request,pk):
     status_list = ProjectStatus.objects.all().filter(project_id = pid)
     paddy = PaddyProject.objects.get(id=pid)
     prj = Project.objects.get(id=paddy.project_id)
-    userRole=prj.getUserRole(user)
+    userRole=prj.getUserRole(user,'ProjectStatus')
 
     return  render(request,template_name="prjstatus_list.html",context={'status_list':status_list,'project':prj, 'userRole':userRole})
 
 def statusView(request):
-    status_list = ProjectStatus.objects.all()
+    status_list = ProjectStatus.objects.all().order_by('-updatedOn')
     return render(request,'status.html', context={'status_list':status_list})
 
 def prjStatusLiked(request, pk):
@@ -268,7 +268,7 @@ def prjStatusComment(request, pk):
             post.save(update_fields=['comments'])
 
     comment_form = CommentForm()
-    comments = Comment.objects.all().filter(status_id=pk)
+    comments = Comment.objects.all().filter(status_id=pk).order_by('-updatedOn')
     return render(request, template_name=template_name, context={'prj': post,
                                            'comment_list': comments,
                                            'form': comment_form})

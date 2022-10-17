@@ -88,10 +88,8 @@
                         <ul class="dropdown-menu"> 
                         <li><a class="dropdown-item" href={% url 'accounts:logoff' %}>Log Off</a></li>
                         <li><a class="dropdown-item" href={% url 'accounts:member' %}>Profile</a></li>
-                        {% if user.is_staff %}
                         <hr>
                         <li><a class="dropdown-item" href={% url 'accounts:projectList' %}>Projects</a></li>
-                        {% endif %}
                         </ul>
                     {% else %}    
                         <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">LogIn</a> 

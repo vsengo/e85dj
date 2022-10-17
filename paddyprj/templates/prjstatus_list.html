@@ -31,7 +31,7 @@
                                 <tr>
                                     <th scope=""row">{{forloop.counter}}</th>
                                     <td>{{sts.title}}</td>
-                                    <td>{{sts.content}} </td>
+                                    <td>{{sts.content|linebreaks}} </td>
                                     {% if userRole == 'EDIT' %}
                                     <td><a href="{% url 'paddyprj:prjStatusUpd' sts.id %}">Edit</a></td>
                                     <td><a href="{% url 'paddyprj:prjStatusDel' sts.id %}">Delete</a></td>

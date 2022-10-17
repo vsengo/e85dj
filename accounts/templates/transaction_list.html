@@ -29,6 +29,7 @@
                                     <th scope="col">Amount</th>
                                     <th scope="col">Date</th>
                                     <th scope="col">Remarks</th>
+                                    <th scope="col">Status</th>
                                     {% if userRole == 'EDIT' %}
                                     <th scope="col">Name</th>
                                     <th scope="col">Update </th>
@@ -46,6 +47,7 @@
                                     <td>{{tx.amount}} </td>
                                     <td>{{tx.date}}</td>
                                     <td>{{tx.remarks}}</td>
+                                    <td>{{tx.confirmed}}</td>
                                     {% if userRole == 'EDIT' %}
                                     <td>{{tx.owner.first_name}} {{tx.owner.last_name}}</td>
                                     <td><a href="{% url 'accounts:transactionUpd' tx.id %}" class="btn btn-danger btn-md">Edit</a></td>
