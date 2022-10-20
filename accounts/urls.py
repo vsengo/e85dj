@@ -5,7 +5,7 @@ from .views import  SignUpView, deleteMember, logOff, logIn, memberView, project
 from .views import committeeAddView, CommitteeUpd, committeeDelView,committeeListView, minuteAddView, minuteDelView, minuteListView, minuteUpdView
 from .views import transactionAddView, transactionDelView, transactionListView, transactionSummary, transactionUpdView, financialReport, memberUpdView
 from .views import transactionUserView, transactionUserAddView, bankAccountListView, bankAccountAddView, bankAccountDelView, bankAccountUpdView, otherPrjListView
-from .views import bankAccountSummary, deleteMember
+from .views import bankAccountSummary, deleteMember, pwdResetInstruction
 
 
 urlpatterns = [
@@ -51,6 +51,7 @@ urlpatterns = [
     re_path(r'minuteUpd(?P<pk>\d+)', minuteUpdView, name='minuteUpd'),
     
     re_path(r'^change_password/$', change_password, name='change_password'),
+    re_path(r'pwdResetInstruction$', pwdResetInstruction, name='pwdResetInstruction'),
 
     re_path(r'password_reset/',
          auth_views.PasswordResetView.as_view(
@@ -66,12 +67,14 @@ urlpatterns = [
              template_name='accounts/password_reset/password_reset_done.html'
          ),
          name='password_reset_done'),
+
     path('password_reset_confirm/<uidb64>/<token>/',
          auth_views.PasswordResetConfirmView.as_view(
-             template_name='accounts/password_reset/pwdreset_confirm.html'),
+             template_name='accounts/password_reset/pwdreset_confirm.html',
+             success_url='login'),
          name='password_reset_confirm'),
 
-    path('password_reset_complete',
+    re_path(r'password_reset_complete',
          auth_views.PasswordResetCompleteView.as_view(template_name='accounts/password_reset/pwdreset_complete.html'),
          name='password_reset_complete'),
 ]

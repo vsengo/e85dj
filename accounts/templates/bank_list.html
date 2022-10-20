@@ -1,0 +1,85 @@
+{% extends 'home/base.html' %}
+{% block content %}
+<script>
+    var myModal = document.getElementById('myModal');
+    var myInput = document.getElementById('myInput');
+    
+    myModal.addEventListener('shown.bs.modal', function () {
+      myInput.focus()
+     });
+</script>
+    
+<div class="container-fluid">
+    <div class="row text-center justify-content-center">
+        
+        {% if user.is_staff %}
+        <p >Review Bank list and Update or Delete or <br>
+         <a href="{% url 'accounts:bankAccountAdd' project.id %}" class="btn btn-secondary btn-md">Add Bank</a>
+         </p>
+        {% endif %}
+
+        <div class="card mt-2 mb-2">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Project</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Bank</th>
+                        <th scope="col">Account</th>
+                        <th scope="col">Branch</th>
+                        <th scope="col">Owner</th>
+                        <th scope="col">Balance</th>
+                        <th scope="col">updatedOn</th>
+                        {% if userRole == 'EDIT' %}
+                        <th scope="col">Update </th>
+                        <th scope="col">Delete </th>
+                        {% endif %} 
+                    </tr>
+                </thead>
+                <tbody>
+                   {% for bank in bank_list %}
+                    <tr>
+                        <th scope=""row">{{forloop.counter}}</th>
+                        <td>{{bank.project.name}} </td>
+                        <td>{{bank.name}} </td>
+                        <td>{{bank.bank}} </td>
+                        <td>{{bank.accNumber}} </td>
+                        <td>{{bank.branch}}</td>
+                        <td>{{bank.holder.first_name}} {{bank.holder.last_name}}</td>
+                        <td>{{bank.balance}}</td>
+                        <td>{{bank.updatedOn}}</td>
+                        {% if userRole == 'EDIT' %}
+                        <td><a href="{% url 'accounts:bankAccountUpd' project.id bank.id %}" class="btn btn-danger btn-md">Edit</a></td>
+                        <td>
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#deleteUserModal">
+                                Delete
+                            </button>
+                        </td>
+                            <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                  <div class="modal-content">
+                                    <div class="modal-header">
+                                      <h5 class="modal-title" id="exampleModalLabel">Confirm Removal!</h5>
+                                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                     Please Confirm you want to remove this Bank
+                                    </div>
+                                    <div class="modal-footer">
+                                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                      <a href="{% url  'accounts:bankAccountDel' project.id bank.id %}" class="btn btn-danger btn-md">Delete</a>
+                                  </div>
+                                </div>
+                            </div>
+                        {% endif %} 
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+ </div>
+
+{% include 'home/footer.html' %}
+{% endblock content %}

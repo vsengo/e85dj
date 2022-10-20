@@ -1,0 +1,44 @@
+{% extends 'home/base.html' %}
+{% block content %}
+
+<div class="container-fluid">
+    <div class="row text-center justify-content-center">
+            <div class="card mt-2 mb-2">
+            <div class="card-header">
+                <div class="row">
+                   Other Projects
+                </div>
+            </div>
+
+            <div class="card-body">
+                {% for project in project_list %}
+                <div class="row">
+                    <div class="col-md-9 col-lg-9" align="left">
+                        <div class="alert alert-danger text-left justify-content-left">
+                            <p>
+                                <strong>
+                                    Name :{{project.name}}  Status:{{project.status}} 
+                                    Start Date:{{project.startDate}}  End Date:{{project.endDate}}
+                                </strong>
+                            </p>
+                        </div>
+                        <div class="alert alert-info text-left justify-content-left">
+                            <strong>Objective :</strong>{{project.purpose|linebreaks}}
+                        </div>
+                        <div class="alert alert-info text-left justify-content-left">
+                            <strong>Targetted Fund</strong> Rs.{{project.targetFund}}
+                            <strong>Raised     Fund</strong> Rs.{{project.raisedFund}}
+                            <strong>Spent/Donatated</strong> Rs.{{project.spentFund}}   <br>
+                            <strong>Numer of Participants</strong>:{{project.participants}} 
+                        </div>
+                    </div>
+                </div>
+                <hr><hr>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+ </div>
+
+{% include 'home/footer.html' %}
+{% endblock content %}

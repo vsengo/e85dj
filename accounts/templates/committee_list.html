@@ -3,8 +3,7 @@
 
 <div class="container-fluid">
     <div class="row text-center justify-content-center">
-        
-        {% if userRole == EDIT %}
+        {% if user.is_staff %}
         <p >Review Commitee members and Update or Delete or <br>
          <a href="{% url 'accounts:committeeAdd' project.id %}" class="btn btn-secondary btn-md">Add committee</a>
          </p>
@@ -37,7 +36,7 @@
                         <td>{{committee.status}} </td>
                         <td>{{committee.startDate}} </td>
                         <td>{{committee.endDate}} </td>
-                        {% if userRole == EDIT  %}
+                        {% if user.is_staff  %}
                         <td><a href="{% url 'accounts:committeeUpd' committee.id %}" class="btn btn-danger btn-md">Edit</a></td>
                         <td>
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#deleteUserModal">

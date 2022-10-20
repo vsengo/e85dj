@@ -139,9 +139,14 @@ MEDIA_URL = '/media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIT_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'vsengo@gmail.com'
-EMAIL_HOST_PASSWORD = 'Ammankovil'
+SENDGRID_API_KEY = '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'
+SENDGRID_SANDBOX_MODE_IN_DEBUG = False
+DEFAULT_FROM_EMAIL = 'vsengo@gmail.com'
+EMAIL_BACKEND = 'sendgrid_backend.SendgridBackend'
+
+#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+#EMAIL_HOST = 'smtp.sendgrid.net'
+#EMAIT_PORT = 25
+#EMAIL_USE_TLS = True
+#EMAIL_HOST_USER = 'apikey'
+#EMAIL_HOST_PASSWORD = SENDGRID_API_KEY

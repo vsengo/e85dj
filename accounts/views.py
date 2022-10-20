@@ -68,6 +68,9 @@ def change_password(request):
         'form': form
     })
 
+def pwdResetInstruction(request):
+    return render(request, 'password_reset/pwdreset_instruction.html')
+
 @login_required
 def deleteMember(request):
     member = Member.objects.get(user_id=request.user.id)
@@ -195,6 +198,8 @@ def committeeAddView(request,pk):
     user = User.objects.get(id=request.user.id)
     if request.method == 'GET':
         form = CommiteeForm()
+        form.fields['member'].queryset = User.objects.order_by('first_name')
+
         if project.isCommiteeMember(user) or user.is_staff:
             return render(request = request,template_name = "committee.html",context={"form":form,'project':project})
         else:
@@ -362,6 +367,8 @@ def transactionAddView(request,pk):
         form = TransactionForm()
         form.fields['exType'].queryset = ExpenseType.objects.filter(prjType_id = prj.prjType.id)
         form.fields['bank'].queryset = BankAccount.objects.filter(project_id=prj.id)
+        form.fields['owner'].queryset = User.objects.order_by('first_name')
+
         return render(request = request,template_name = "transaction.html",context={"form":form,'project':prj})
         
     if request.method == 'POST':
@@ -401,6 +408,9 @@ def transactionUpdView(request,pk):
 
     if request.method == 'GET':
         form  = TransactionForm(instance = tx)
+        form.fields['exType'].queryset = ExpenseType.objects.filter(prjType_id = project.prjType.id)
+        form.fields['bank'].queryset = BankAccount.objects.filter(project_id=project.id)
+        form.fields['owner'].queryset = User.objects.order_by('first_name')
         return render(request,template_name='common_form.html',context={'form':form, 'form_name':"Transaction "})
 
     if request.method == 'POST':

@@ -2,13 +2,18 @@
 {% block content %}
 
 	{% load crispy_forms_tags %}
-
 	<!--Reset Password-->
 	<div class="container p-5">
   	 	<h2 class="font-weight-bold mt-3">Reset Password</h2>
 		<hr>
 		<p>Forgotten your password?</p>
-		<p>Please send email to sengovel@yahoo.com with your Full name and Mobile number/email.</p>
+		<h3 style='color:red'>Enter your email address below, and we'll email instructions for setting a new one.</h3>
+		<strong>Click the link sent on email to reset the password</strong>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <button class="btn btn-primary" type="submit">Send email</button>
+        </form>
   	</div>
 {% endblock %}
 {% include 'home/footer.html' %}
