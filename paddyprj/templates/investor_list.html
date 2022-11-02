@@ -19,8 +19,9 @@
                                 <tr>
                                     <th scope="col">#</th>
                                     <th scope="col">Shares</th>
-                                    {% if userRole == 'EDIT' %}
                                     <th scope="col">Name</th>
+                                    {% if userRole == 'EDIT' %}
+
                                     <th scope="col">Update </th>
                                     <th scope="col">Delete </th>
                                     {% endif %} 
@@ -31,8 +32,8 @@
                                 <tr>
                                     <th scope=""row">{{forloop.counter}}</th>
                                     <td>{{sts.shares}} </td>
-                                    {% if userRole == 'EDIT' %}
                                     <td>{{sts.user.first_name}} {{sts.last_name}}</td>
+                                    {% if userRole == 'EDIT' %}
                                     <td><a href="{% url 'paddyprj:investorUpd' sts.id %}">Edit</a></td>
                                     <td><a href="{% url 'paddyprj:investorDel' sts.id %}">Delete</a></td>
                                     {% endif %} 

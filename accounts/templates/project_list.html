@@ -1,5 +1,11 @@
 {% extends 'home/base.html' %}
 {% block content %}
+<script type="text/javascript">
+    function confirmDeleteModal(id){
+        $('#delete_confirm_form').attr('action',"/accounts/projectDel"+id);
+        $('#deleteUserModal').modal('show');
+    };    
+</script>
 
 <div class="container-fluid">
     <div class="row text-center justify-content-center">
@@ -40,26 +46,10 @@
                         {% if user.is_staff %}
                         <a href="{% url 'accounts:bankAccountList' project.id %}" class="btn btn-secondary btn-md">Update Bank Accounts</a><br><br>
                         <a href="{% url 'accounts:projectUpd' project.id %}" class="btn btn-secondary btn-md">Update Project</a><br><br>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#deleteUserModal">
-                            Delete Project
-                        </button>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" onclick="confirmDeleteModal('{{tx.id}}')" id="deleteID">
+                            Delete
+                        </button> 
                         {% endif %}
-                        <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                              <div class="modal-content">
-                                <div class="modal-header">
-                                  <h5 class="modal-title" id="exampleModalLabel">Confirm Removal!</h5>
-                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                 Please Confirm you want to Delete Project
-                                </div>
-                                <div class="modal-footer">
-                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                  <a href="{% url 'accounts:projectDel' project.id %}" class="btn btn-danger btn-md">DELETE</a> <br><br>
-                              </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
                 <hr>

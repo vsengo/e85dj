@@ -1,6 +1,13 @@
 {% extends 'home/base.html' %}
 {% block content %}
 
+<script type="text/javascript">
+    function confirmDeleteModal(id){
+        $('#delete_confirm_form').attr('action',"/accounts/transactionDel"+id);
+        $('#deleteUserModal').modal('show');
+    };    
+</script>
+
 <div class="container-fluid">
     <div class="row text-center justify-content-center">
             <div class="card mt-2 mb-2">
@@ -30,8 +37,8 @@
                                     <th scope="col">Date</th>
                                     <th scope="col">Remarks</th>
                                     <th scope="col">Status</th>
-                                    {% if userRole == 'EDIT' %}
                                     <th scope="col">Name</th>
+                                    {% if userRole == 'EDIT' %}
                                     <th scope="col">Update </th>
                                     <th scope="col">Delete </th>
                                     {% endif %} 
@@ -48,30 +55,14 @@
                                     <td>{{tx.date}}</td>
                                     <td>{{tx.remarks}}</td>
                                     <td>{{tx.confirmed}}</td>
-                                    {% if userRole == 'EDIT' %}
                                     <td>{{tx.owner.first_name}} {{tx.owner.last_name}}</td>
+                                    {% if userRole == 'EDIT' %}
                                     <td><a href="{% url 'accounts:transactionUpd' tx.id %}" class="btn btn-danger btn-md">Edit</a></td>
                                     <td>
-                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#deleteUserModal">
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" onclick="confirmDeleteModal('{{tx.id}}')" id="deleteID">
                                             Delete
-                                        </button>
+                                        </button> 
                                     </td>
-                                        <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                            <div class="modal-dialog">
-                                              <div class="modal-content">
-                                                <div class="modal-header">
-                                                  <h5 class="modal-title" id="exampleModalLabel">Confirm Removal!</h5>
-                                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                 Please Confirm you want to remove this transaction
-                                                </div>
-                                                <div class="modal-footer">
-                                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                  <a href="{% url 'accounts:transactionDel' tx.id %}" class="btn btn-danger btn-md">Delete</a>
-                                              </div>
-                                            </div>
-                                        </div>
                                     {% endif %} 
                                 </tr>
                                 {% endfor %}
@@ -80,8 +71,24 @@
                         </div>
                 </div>
                 <hr>
-                
             </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+           <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" style="color:red">Confirm you want to Delete the record.</h5>
+                    <form id="delete_confirm_form" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-warning mr-1" data-dismiss="modal">DELETE</button>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <p class="modal-title">Click outside this box to Cancel.</p>
+                </div>
+           </div> 
         </div>
     </div>
  </div>

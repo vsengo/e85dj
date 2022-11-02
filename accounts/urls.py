@@ -5,17 +5,19 @@ from .views import  SignUpView, deleteMember, logOff, logIn, memberView, project
 from .views import committeeAddView, CommitteeUpd, committeeDelView,committeeListView, minuteAddView, minuteDelView, minuteListView, minuteUpdView
 from .views import transactionAddView, transactionDelView, transactionListView, transactionSummary, transactionUpdView, financialReport, memberUpdView
 from .views import transactionUserView, transactionUserAddView, bankAccountListView, bankAccountAddView, bankAccountDelView, bankAccountUpdView, otherPrjListView
-from .views import bankAccountSummary, deleteMember, pwdResetInstruction
+from .views import bankAccountSummary, deleteMember, pwdResetInstruction, memberList, memberAll
 
 
 urlpatterns = [
     re_path(r'signup', SignUpView.as_view(), name='signup'),
     re_path(r'logoff', logOff, name='logoff'),
     re_path(r'login', logIn, name='login'),
-    re_path(r'^member', memberView, name='member'),
+    re_path(r'^member$', memberView, name='member'),
     re_path(r'^updateMember', memberUpdView, name='updateMember'),
     re_path(r'^deleteMember', deleteMember, name='deleteMember'),
-
+    re_path(r'memberList', memberList, name='memberList'),
+    re_path(r'memberAll', memberAll, name='memberAll'),
+    
     re_path(r'otherprjList', otherPrjListView, name='otherprjList'),
     re_path(r'projectList', projectListView, name='projectList'),
     re_path(r'projectAdd', projectAddView, name='projectAdd'),

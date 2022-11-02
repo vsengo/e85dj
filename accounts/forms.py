@@ -30,7 +30,7 @@ class UserForm(forms.ModelForm):
         fields = ("first_name","last_name","email")
 
 class MemberForm(forms.ModelForm):
-    mobile =forms.CharField(label="Mobile Number (country) (number)")
+    mobile =forms.CharField(label="Mobile Number (countrycode number)")
     city = forms.CharField(label = "City")
     country = forms.CharField(label = "Country")
     dob = forms.DateField(label = "Date of Birth(YYYY-MM-DD)",)

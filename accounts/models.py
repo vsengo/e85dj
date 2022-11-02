@@ -18,7 +18,7 @@ class Member(models.Model):
     photo = models.ImageField(upload_to='profile/',blank=True, null=True)
 
     def __str__(self):
-        return "%s % " % (self.user.first_name, self.user.last_name) 
+        return "%s %" % (self.first_name,self.last_name) 
 
 @receiver(post_save, sender=User)
 def create_user_member(sender, instance, created, **kwargs):

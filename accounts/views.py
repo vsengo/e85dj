@@ -9,6 +9,9 @@ from django.views import generic
 from django.views.generic import UpdateView
 from django.contrib  import messages
 from django.db import IntegrityError
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+
 
 from django.db.models import Sum, Count
 from django.conf import settings
@@ -19,10 +22,11 @@ from PIL import Image
 from datetime import datetime
 from accounts.forms import RegisterForm, UserForm, MemberForm, ProjectForm, CommiteeForm, MinuteForm, TransactionForm, TransactionUserForm, BankAccountForm
 from accounts.models import BankAccount, Commitee, Member, Project, Minute, UserRole, Transaction, ExpenseType, BankAccount
+from accounts.serializers import MemberSerializer
 
 class SignUpView(generic.CreateView):
     form_class = RegisterForm
-    success_url = reverse_lazy('accounts:login')
+    success_url = reverse_lazy('accounts:memberList')
     template_name = 'signup.html'
 
 def logIn(request):
@@ -261,13 +265,10 @@ def minuteAddView(request,pk):
     user = User.objects.get(id=request.user.id)  
     
     if request.method == 'GET':
-        if project.isCommiteeMember(user):
-            form = MinuteForm()
-            return render(request = request,template_name = "minute.html",context={"form":form,'project':project})
-        else:
-            error={'title':'Access Restriction', 'message':user.first_name+" is not a committee member of "+project.name}
-            return render(request,template_name='error.html',context=error)
-    
+        userRole=project.getUserRole(user,'Minute')
+        form = MinuteForm()
+        return render(request = request,template_name = "minute.html",context={"form":form,'project':project,'userRole':userRole})
+        
     if request.method == 'POST':
         form = MinuteForm(request.POST)
         if form.is_valid():
@@ -622,3 +623,13 @@ def financialReport(request, pk):
     prj = Project.objects.get(id=pk)
     templateName='financial_'+str(prj.id)+".html"
     return render(request,template_name=templateName,context={'project':prj})
+
+@login_required
+def memberList(request):
+    return render(request,'member_list.html')
+
+@api_view(['GET'])
+def memberAll(request):
+    data=User.objects.all()
+    eqSerializer = MemberSerializer(data,many=True)
+    return Response(eqSerializer.data)
