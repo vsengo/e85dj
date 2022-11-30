@@ -355,7 +355,7 @@ def transactionListView(request, pk):
     
     if request.method == 'GET':
 
-        transactions = Transaction.objects.filter(bank__project__id=pk).order_by('-date')
+        transactions = Transaction.objects.filter(bank__project__id=pk).order_by('owner__first_name')
         userRole = prj.getUserRole(user,'Transaction')
         context={'project':prj, 'transaction_list':transactions, 'userRole':userRole}
         return render(request = request,template_name = "transaction_list.html",context=context)

@@ -1,5 +1,7 @@
 from django.urls import path,re_path,include
 from .views import contributorAddView, contributorListView, contributorDelView, contributorUpdView, constitutionView, reportView
+from .views import getIncomeReport
+
 urlpatterns = [
     re_path(r'^contributorList(?P<pk>\d+)', contributorListView, name='contributorList'),
     re_path(r'^contributorAdd(?P<pk>\d+)', contributorAddView, name='contributorAdd'),
@@ -8,4 +10,5 @@ urlpatterns = [
 
     re_path(r'^report(?P<pk>\d+)', reportView, name='report'),
     re_path(r'^constitution', constitutionView, name='constitution'),
+    re_path(r'^incomeReport(?P<pk>\d+)',getIncomeReport,name='incomeReport'),
 ]

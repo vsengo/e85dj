@@ -7,9 +7,12 @@ from django.db import IntegrityError
 from django.urls import reverse_lazy
 from django.db.models import Sum, Count
 from django.http import JsonResponse
-from .models import Contribution
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .models import Contribution, IncomeReport
 from .forms import ContributeForm
 from accounts.models import BankAccount, Project, Transaction
+from .serializers import IncomeReportSerializer
 
 @login_required
 def contributorAddView(request,pk):
@@ -107,21 +110,48 @@ def constitutionView(request):
 
 def reportView(request,pk):
     prj = Project.objects.get(id=pk)
-    cns = Contribution.objects.all().filter(project_id=pk)
-    cns_count=cns.count()
-    cns_total = cns.aggregate(total=Sum('amount'))
-    freq_sum = Contribution.objects.values('frequency').annotate(Sum('amount')).annotate(cnt=Count('frequency'))  
-    freq_cnt = cns.annotate(Count('frequency')) 
-    freq_list=freq_sum
-    
     txs = Transaction.objects.all().filter(bank__project__id=pk).filter(txType='DEPOSIT')
     tx_count=txs.count()
     tx_total = txs.aggregate(total=Sum('amount'))
-
-
-    ctx = {'contrib_count':cns_count,'contrib_total':cns_total['total'],'freq_list':freq_list,
-            'tx_count':tx_count,'tx_total':tx_total['total'],
+    
+    ctx = {'tx_count':tx_count,'tx_total':tx_total['total'],
             'project':prj}
     if request.method == 'GET':
         return render(request=request,template_name="report.html",context = ctx)
 
+@api_view(['GET'])
+def getIncomeReport(request,pk):
+    print("Getting data for "+str(pk))
+    datasetX = IncomeReport.objects.filter(project_id=pk).values_list('period', flat=True)
+    amount = IncomeReport.objects.filter(project_id=pk).values_list('amount',flat=True)
+    counts = IncomeReport.objects.filter(project_id=pk).values_list('count',flat=True)
+
+
+    chart = {
+        'chart': {'type': 'bar'},
+        'title': {'text': 'Monthly Contribution in Thousands'},
+        'xAxis':{
+            'categories':list(datasetX)
+        },
+        'yAxis':{
+            'min': 0,
+            'title':{
+                'text':'Amount'
+            }
+        },
+        'plotOptions':{
+            'column': {
+            'pointPadding': 0.2,
+            'borderWidth': 0
+            }
+        },
+        'series': [{
+            'name': 'Amount',
+            'data':list(amount),
+        },{
+            'name': 'Number of People',
+            'data':list(counts),
+        }]
+    }
+
+    return JsonResponse(chart)

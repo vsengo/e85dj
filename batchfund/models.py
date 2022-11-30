@@ -48,3 +48,9 @@ class Distribution(models.Model):
     status = models.CharField(max_length=12,choices=STATUS,default='Committed')
     updatedBy = models.ForeignKey(User,on_delete=models.CASCADE)
     updatedOn = models.DateTimeField(default=timezone.now)
+
+class IncomeReport(models.Model):
+    project = models.ForeignKey(Project,on_delete=models.CASCADE)
+    period=models.CharField(max_length=16,null=False) 
+    amount=models.IntegerField(null=True,default=0)
+    count=models.IntegerField(null=True,default=0)   
