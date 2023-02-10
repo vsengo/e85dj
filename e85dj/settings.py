@@ -140,7 +140,6 @@ MEDIA_URL = '/media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-SENDGRID_API_KEY = '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'
 SENDGRID_SANDBOX_MODE_IN_DEBUG = False
 DEFAULT_FROM_EMAIL = 'vsengo@gmail.com'
 EMAIL_BACKEND = 'sendgrid_backend.SendgridBackend'
