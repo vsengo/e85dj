@@ -12,6 +12,7 @@ from rest_framework.response import Response
 from .models import Contribution, IncomeReport
 from .forms import ContributeForm
 from accounts.models import BankAccount, Project, Transaction
+from batchfund.models import Contribution
 from .serializers import IncomeReportSerializer
 
 @login_required
@@ -110,7 +111,7 @@ def constitutionView(request):
 
 def reportView(request,pk):
     prj = Project.objects.get(id=pk)
-    txs = Transaction.objects.all().filter(bank__project__id=pk).filter(txType='DEPOSIT')
+    txs = Contribution.objects.all().filter(project__id=pk)
     tx_count=txs.count()
     tx_total = txs.aggregate(total=Sum('amount'))
     
