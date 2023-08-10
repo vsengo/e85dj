@@ -20,7 +20,7 @@ class Member(models.Model):
     batchID = models.CharField(max_length=16,null=True,blank=True)
     
     def __str__(self):
-        return "%s %" % (self.first_name,self.last_name) 
+        return "%d %s %s" % (self.refID,self.user.first_name,self.user.last_name) 
 
 @receiver(post_save, sender=User)
 def create_user_member(sender, instance, created, **kwargs):
@@ -174,5 +174,13 @@ class Transaction(models.Model):
     confirmed = models.CharField(max_length=16,choices=TXCONFIRM,default='UnConfirmed')
     updatedBy = models.ForeignKey(User,on_delete=models.PROTECT)
     updatedOn = models.DateTimeField(default=timezone.now)
+
+
+# class MemberFinance(models.Model):
+#     owner = models.ForeignKey(User, related_name='Owner', on_delete=models.PROTECT)
+#     project = models.ForeignKey(Project, on_delete=models.CASCADE)
+#     amount  = models.IntegerField()
+#     lastUpdDate    = models.DateField(default=timezone.now)
+        
 
 

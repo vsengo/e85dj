@@ -111,7 +111,8 @@ def constitutionView(request):
 
 def reportView(request,pk):
     prj = Project.objects.get(id=pk)
-    txs = Contribution.objects.all().filter(project__id=pk)
+    bk=BankAccount.objects.get(project=prj)
+    txs = Transaction.objects.all().filter(bank=bk)
     tx_count=txs.count()
     tx_total = txs.aggregate(total=Sum('amount'))
     
